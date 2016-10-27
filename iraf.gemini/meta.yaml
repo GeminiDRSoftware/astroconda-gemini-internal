@@ -1,6 +1,7 @@
-# The environment variable DATE should be set before running conda build. We
-# could do the same for the tag name and just maintain a single branch, but
-# using separate branches allows for arbitrary recipe differences.
+# The environment variable DATE should be set before running conda build (and
+# the corresponding source tarball already created). We could do the same for
+# the tag name and just maintain a single branch, but using separate branches
+# allows for arbitrary recipe differences.
 
 {% set version = 'internal_' + DATE %}
 
