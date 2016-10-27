@@ -1,8 +1,14 @@
+# The environment variable DATE should be set before running conda build. We
+# could do the same for the tag name and just maintain a single branch, but
+# using separate branches allows for arbitrary recipe differences.
+
+{% set version = 'internal_' + DATE %}
+
 about:
     home: http://www.gemini.edu/sciops/data-and-results/processing-software
     license: Fee-free redistribution only (& 3rd-party non-commercial licenses)
     license_file: COPYRIGHT
-    summary: Gemini IRAF package
+    summary: Gemini IRAF package (internal version)
 build:
     binary_relocation: False
     number: '0'
@@ -13,12 +19,10 @@ build:
     - bin/ac_update_extern_pkg
 package:
     name: iraf.gemini
-    version: "1.13.1"
+    version: {{ version }}
 source:
-    fn: gemini_v1131_for_iraf_2.16.tar.gz
-    url: http://astroconda-source:4440/gemini_v1131_for_iraf_2.16.tar.gz
-    patches:
-    - ac.iraf.gemini.patch
+    fn: gemini_{{ version }}.tar.gz
+    url: http://astroconda-source:4440/gemini_{{ version }}.tar.gz
 requirements:
     build:
     - astroconda-iraf-helpers
