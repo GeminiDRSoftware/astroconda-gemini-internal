@@ -1,9 +1,9 @@
-# The environment variable DATE should be set before running conda build (and
-# the corresponding source tarball already created). We could do the same for
-# the tag name and just maintain a single branch, but using separate branches
-# allows for arbitrary recipe differences.
+# The environment variables TAG & DATE should be set (and the corresponding
+# source tarball created externally) before running conda build. Separate
+# branches can be created for different operational tags as and when the
+# corresponding recipes differ (which doesn't happen routinely).
 
-{% set version = 'internal_' + DATE %}
+{% set version = TAG + '_' + DATE %}
 
 about:
     home: http://www.gemini.edu/sciops/data-and-results/processing-software
