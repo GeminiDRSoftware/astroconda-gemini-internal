@@ -1,0 +1,86 @@
+#!/bin/sh
+
+# Create a Gemini IRAF source tarball (for a given tag) from CVS.
+# Adapted for AstroConda from Ureka's pkg_source.gemini_iraf.
+
+deps="cvs"
+
+# Parse script arguments:
+if [ "$1" = "-l" ]; then  # optional CVS login flag
+	cvslogin=1
+        shift
+else
+	cvslogin=0
+fi
+
+pkgname="gemini_iraf"
+
+tag="$1"
+
+if [ $# -gt 1 ]; then
+	echo "Usage: `basename $0` [-l] [tag]" >&2
+	exit 1
+fi
+
+# Get common build configuration & parse the version tag:
+. ./config || exit 1
+
+# Generate temporary working name/directory
+cd $WORKDIR
+session=${pkgname}.$$
+subdir=tmp_checkouts/${session}
+rm -fr $subdir
+pkgstr=${pkgname}-${version}
+mkdir -p $subdir
+cd $subdir
+
+# Check out the appropriately-tagged package version
+if [ $cvslogin = 1 ]; then
+	cvs -d $CVSROOT login
+fi
+echo -n "Checking out $pkgname $TAG..."
+if [ $tag = "latest" ]; then
+	cvs -d $CVSROOT -Q co gemini
+else
+	cvs -d $CVSROOT -Q co -r $TAG gemini
+fi
+checkout_status=$?
+
+# If successful, tar up the directory contents, remove the directory and
+# finally replace any existing "gemini_version" tarball.
+if [ $checkout_status = 0 ]; then
+	echo "done."
+        echo -n "Making tarball..."
+        tar zcf ../${session}.${AREXT} *
+        status=$?
+        cd ..
+        if [ $status = 0 ]; then
+                echo "done."
+                rm -fr $session
+                mv -f ${session}.${AREXT} ${pkgstr}.${AREXT}
+                status=$?
+        else
+                echo "failed."
+        fi
+else
+	echo "failed."
+        status=1
+fi
+
+# This is what we did for Ureka, to provide source tarballs to STScI. We may
+# want to do the same thing for AstroConda, but I'm leaving it commented out
+# until we establish some logistical details (such as proliferation of
+# tarballs now there's a date string, co-ordination of site builds etc).
+# # If all went well, upload the tarball to STScI's account on our sftp server
+# # (assuming it has our current build machine's ssh key).
+# if [ $status = 0 ]; then
+#     echo "Initiating upload."
+#     scp -p ${pkgstr}.${AREXT} $gemini_iraf_sources/
+#     status=$?
+# fi
+
+# Copy the source to /rtfperm, for use by each build machine:
+[ $status = 0 ] && copy_tarball "$pkgstr"
+
+victory $status
+

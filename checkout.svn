@@ -1,0 +1,216 @@
+#!/bin/sh
+
+# Create a Gemini Python or Gemaux source tarball from SVN, scraping the
+# "GDPSG Wiki" page for the branch & revision corresponding to a given tag.
+# Adapted for AstroConda from Ureka's pkg_source.gemini_python (this should
+# get significantly simpler as and when the code moves to git).
+
+# Currently, the user must already have SVN login credentials stored.
+
+deps="svn wget"  # (wget is only on Linux)
+
+# Parse script arguments:
+status=1
+unset rev pkgname tag
+while [ -n "$1" ]; do
+    case "$1" in
+        -h)
+            pkgname=""
+            status=0
+            break
+            ;;
+        -r) # override wiki revision
+            shift
+            rev=$1
+            [ -z "$rev" ] && status=1
+            ;;
+        -*)
+            status=1
+            break
+            ;;
+        *)
+            if [ -z "$pkgname" ]; then
+                pkgname=$1
+                status=0
+            elif [ -z "$tag" ]; then
+                tag=$1
+            else
+                status=1
+            fi
+            ;;
+    esac
+    shift
+done
+
+if [ -z "$pkgname" -o $status = 1 ]; then
+    echo "Usage: `basename $0` [-r rev] package [tag]" >&2
+    exit $status
+fi
+
+if [ -n "$rev" ]; then
+    revflags="-r $rev"
+else
+    revflags=""  # set from wiki
+fi
+
+case "$pkgname" in
+    gemini_python|gemini-python)
+        pkgname="gemini_python"
+        ;;
+    gemaux|gemaux_python|gemaux-python)
+        pkgname="gemaux_python"
+        ;;
+    *)
+        echo "Invalid package name: '$pkgname'" >&2
+        exit 1
+        ;;
+esac
+
+# Get common build configuration & parse the version tag etc.:
+. ./config || exit 1
+
+# Generate temporary working name/directory (could be a shared script?)
+cd $WORKDIR
+session=$pkgname.$$
+subdir=tmp_checkouts/${session}
+rm -fr $subdir
+pkgstr=${pkgname}-${version}
+mkdir -p ${subdir}/${pkgstr}
+cd $subdir
+
+# If a tag other than LATEST is specified, determine the corresponding revision
+# number by parsing a table on the group wiki page (sorry, Kathleen insisted on
+# using that as the master reference). This should probably have been written
+# in Python, but works and is not worth rewriting before the code moves to git.
+if [ $tag = "latest" ]; then
+
+    branch="trunk"
+    wiki_status=0
+    if [ -n "$rev" ]; then
+        echo "Using trunk r$rev"
+    else
+        echo "Using latest trunk revision"
+    fi
+
+else
+    wget -nv -O wikipage.html $WIKIPAGE
+    wiki_status=$?
+
+    if [ $pkgname = "gemaux_python" ]; then
+        titlexpr=">[ \t]*[Gg]emaux.[Pp]ython"
+    else
+        titlexpr=">[ \t]*[Gg]emini.[Pp]ython"
+    fi
+
+    if [ $wiki_status = 0 ]; then
+        # Parse the table of revision numbers into variables using awk:
+        # - First strip out the relevant table from the page:
+        cat wikipage.html | awk -v titlexpr="$titlexpr" 'BEGIN {intable=0} \
+          /<caption>/ {if ($0~titlexpr) {intable=1}} /<\/table>/ {intable=0} \
+          (intable==1) {print}' > wikitable
+	# - Next strip out the relevant table row:
+        cat wikitable | awk -v version=$tag \
+          'BEGIN {inentry=0; RS="</*tr>"; htag="<td>[ \t]*"version"[ \t<]"} \
+          {if ($0~htag) print}' > wikiline
+        # - Parse the row into colon-delimited fields
+        fields=`cat wikiline | sed -e 's|</td>[ \t]*<td>|:|g' \
+          -e 's|</*td>||' -e '/^[ \t]*$/d'`
+	# - Parse the branch name (if any) from the second column:
+        branch=`echo $fields | awk 'BEGIN {FS=":"} {print $2}' | \
+          sed -e 's|^[ \t]*||' -e 's|[ \t]*$||'`
+	if [ -z "$branch" -o "`echo $branch | tr 'A-Z' 'a-z'`" = "trunk" ]
+        then
+            branch="trunk"
+        fi
+        if [ -z "$revflags" ]; then
+            # - Parse the revision number from the third column:
+            rev=`echo $fields | awk 'BEGIN {FS=":"} {print $3}' | \
+              sed -e 's|^[ \t]*||' -e 's|[ \t]*$||' -e 's|^r||'`
+	    # - Check that what we got was actually a number:
+            gotnum=`echo $rev | sed -e 's|[0-9][0-9]*|yes|'`
+            if [ "$gotnum" = "yes" ]; then
+                echo "Parsed revision: $pkgname $TAG = r$rev ($branch)"
+                revflags="-r $rev"
+            else
+                wiki_status=1
+                echo "Failed to parse revision for $TAG (got [$rev])" >&2
+            fi
+        else
+            echo "Specified revision: $pkgname $TAG = r$rev ($branch)"
+        fi
+    else
+        echo "Failed to retrieve wiki page" >&2
+    fi
+fi
+
+# If we appear to have got a revision number successfully or are using LATEST,
+# check out the relevant package version:
+svnopts="-q --non-interactive"
+
+if [ $wiki_status = 0 ]; then
+
+    # Attempt check out. Sometimes this times out over the network to Hawaii
+    # and a single failure can mean repeating a whole addon build process,
+    # so try 3 times before giving up:
+    echo -n "Checking out $pkgname $TAG..."
+    if [ "$branch" = "trunk" ]; then
+        url=$SVNROOT/$pkgname/trunk/
+    else
+        url=$SVNROOT/$pkgname/branches/QAP/$branch/
+    fi
+    checkout_status=1
+    count=0
+    while [ $checkout_status != 0 -a $count -lt 3 ]; do
+        [ $count -gt 0 ] && echo -n "repeat..."
+        svn $svnopts co $revflags $url $pkgstr/
+        checkout_status=$?
+        count=`expr $count + 1`
+    done
+
+    # If it worked, package the contents:
+    # Currently we don't do "python setup.py sdist" because that's broken,
+    # but installation works directly from the repository tree, so just
+    # tar that up instead.
+    if [ $checkout_status = 0 ]; then
+        echo "done."
+        echo -n "Making tarball..."
+        tar zcf ../${session}.tar.gz $pkgstr/
+        status=$?
+        cd ..
+        if [ $status = 0 ]; then
+            echo "done."
+            rm -fr $session
+            mv -f ${session}.tar.gz ${pkgstr}.tar.gz
+            status=$?
+        else
+            echo "failed."
+        fi
+    else
+        echo "failed."
+        status=1
+    fi
+
+else
+
+    status=1
+
+fi
+
+# This is what we did for Ureka, to provide source tarballs to STScI. We may
+# want to do the same thing for AstroConda, but I'm leaving it commented out
+# until we establish some logistical details (such as proliferation of
+# tarballs now there's a date string, co-ordination of site builds etc).
+# # If all went well, replace the tarball on the sftp server with this one.
+# # We assume the server has an ssh key from the machine we're running on.
+# if [ $status = 0 ]; then
+#     echo "Initiating upload."
+#     scp -p ${pkgstr}.tar.gz $gemini_sources/
+#     status=$?
+# fi
+
+# Copy the source to /rtfperm, for use by each build machine:
+[ $status = 0 ] && copy_tarball "$pkgstr"
+
+# Report success/failure:
+victory $status
+

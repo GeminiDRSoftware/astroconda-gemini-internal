@@ -1,0 +1,90 @@
+# Common configuration for checking out & building Gemini packages.
+
+DATE=`date +%Y%m%d | tr A-Z a-z`
+
+CVSROOT=":pserver:rtfuser@polaris.hi.gemini.edu:/usr/software/dev/cvsroot/girafcvsroot"
+SVNROOT="http://chara.hi.gemini.edu/svn/DRSoftware"
+WIKIPAGE="http://gdpsg.wikis-internal.gemini.edu/index.php/OPS-ServerConfigurationManagement"
+
+SRCDIR="/rtfperm/ac_sources"
+WORKDIR="/rtfproc/ac_build"
+AREXT="tar.gz"
+
+mkdir -p "$WORKDIR"
+
+# Package tag to check out ("latest" if unspecified):
+unset TAG
+case "$tag" in
+    internal|INTERNAL)
+        tag="internal"
+        ;;
+    dev|DEV|development|DEVELOPMENT)
+        tag="dev"
+        TAG="DEVELOPMENT"  # (Gemini IRAF/Python inconsistency)
+        ;;
+    latest|LATEST|"")
+        tag="latest"
+        ;;
+    public|PUBLIC)
+        tag="public"
+        ;;
+    gsops|GSOPS)
+        tag="gsops"
+        ;;
+    gnops|GNOPS)
+        tag="gnops"
+        ;;
+    *)
+        echo "Invalid Gemini package version/tag '$tag'" >&2
+        exit 1
+        ;;
+esac
+[ -z "$TAG" ] && TAG=`echo $tag | tr a-z A-Z`
+
+# Construct version string from the tag & date:
+version="${tag}_${DATE}"
+
+# Make sure we have any dependencies specified by the calling script:
+missing=""
+for dep in $deps; do
+    if ! command -v $dep > /dev/null; then
+        missing="$missing  $dep"
+    fi
+done
+if [ -n "$missing" ]; then
+    echo "Whoops; you need to install the following commands:" >&2
+    echo "  $missing" >&2
+    exit 1
+fi
+
+export DATE CVSROOT SVNROOT WIKIPAGE TAG SRCDIR WORKDIR AREXT tag version
+
+
+# A couple of functions shared by the other scripts:
+
+copy_tarball() {  # copy_tarball root_name
+    local pkgstr=$1
+    echo -n "Copying tarball to local shared mount..."
+    if [ -n "$SRCDIR" -a -w "$SRCDIR/" ]; then
+        if cp -p ${pkgstr}.${AREXT} "$SRCDIR/"; then
+            echo "done."
+        else
+            echo "failed."
+            status=1
+        fi
+    else
+        echo "cannot write to ${SRCDIR}." >&2
+        status=1
+    fi
+}
+
+victory() {  # victory status
+    local status=$1
+    if [ "$status" = "0" ]; then
+            echo "Packaged source for $pkgstr; great success."
+    else
+            echo "Failed to package source for $pkgstr." >&2
+    fi
+    exit $status
+}
+
