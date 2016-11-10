@@ -1,9 +1,9 @@
-# The environment variables TAG & DATE should be set (and the corresponding
+# The environment variables tag & DATE should be set (and the corresponding
 # source tarball created externally) before running conda build. Separate
 # branches can be created for different operational tags as and when the
 # corresponding recipes differ (which doesn't happen routinely).
 
-{% set version = TAG + '_' + DATE %}
+{% set version = tag + '_' + DATE %}
 
 about:
     home: http://www.gemini.edu/sciops/data-and-results/processing-software
@@ -22,8 +22,8 @@ package:
     name: iraf.gemini
     version: {{ version }}
 source:
-    fn: gemini_{{ version }}.tar.gz
-    url: http://astroconda-source:4440/gemini_{{ version }}.tar.gz
+    fn: gemini_iraf-{{ version }}.tar.gz
+    url: http://astroconda-source:4440/gemini_iraf-{{ version }}.tar.gz
 requirements:
     build:
     - astroconda-iraf-helpers

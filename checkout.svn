@@ -212,5 +212,5 @@ fi
 [ $status = 0 ] && copy_tarball "$pkgstr"
 
 # Report success/failure:
-victory $status
+checkout_victory $status
 

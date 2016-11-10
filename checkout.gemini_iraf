@@ -82,5 +82,5 @@ fi
 # Copy the source to /rtfperm, for use by each build machine:
 [ $status = 0 ] && copy_tarball "$pkgstr"
 
-victory $status
+checkout_victory $status
 

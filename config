@@ -7,10 +7,11 @@ SVNROOT="http://chara.hi.gemini.edu/svn/DRSoftware"
 WIKIPAGE="http://gdpsg.wikis-internal.gemini.edu/index.php/OPS-ServerConfigurationManagement"
 
 SRCDIR="/rtfperm/ac_sources"
+PKGDIR="/rtfperm/ac_packages"
 WORKDIR="/rtfproc/ac_build"
 AREXT="tar.gz"
 
-mkdir -p "$WORKDIR"
+mkdir -p "$WORKDIR" "$PKGDIR"
 
 # Package tag to check out ("latest" if unspecified):
 unset TAG
@@ -78,7 +79,7 @@ copy_tarball() {  # copy_tarball root_name
     fi
 }
 
-victory() {  # victory status
+checkout_victory() {  # checkout_victory status
     local status=$1
     if [ "$status" = "0" ]; then
             echo "Packaged source for $pkgstr; great success."
@@ -86,5 +87,14 @@ victory() {  # victory status
             echo "Failed to package source for $pkgstr." >&2
     fi
     exit $status
+}
+
+get_platform() {  # get_platform
+    local re="^[ \t]*platform[ \t]*:[ \t]*"
+    platform=`conda info 2> /dev/null |egrep "$re" | sed -e "s|$re||" -e 's|[ \t]*$||'`
+    if [ -z "$platform" ]; then
+        echo "Failed to determine platform from \"conda info\"" >&2
+        return 1
+    fi
 }
 

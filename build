@@ -1,0 +1,92 @@
+#!/bin/sh
+
+# Wrapper for conda-build that defines the appropriate tag and date for
+# internal Gemini package builds (and optionally copies the resulting packages
+# to a shared "channel" directory).
+
+# Parse script arguments:
+status=1
+unset copy_pkgs tag conda_args pkg_names
+while [ -n "$1" ]; do
+    case "$1" in
+        -h|--help)
+            conda_args=""
+            status=0
+            break
+            ;;
+        --copy-pkg|--copy-pkgs)
+            copy_pkgs=1
+            ;;
+        --tag)
+            if [ -n "$tag" ]; then
+                status=1
+                break
+            fi
+            shift
+            tag=$1
+            ;;
+        *)
+            val=`echo "$1" | sed -e 's|/*$||'`
+            if [ -z "$conda_args" ]; then
+                conda_args=$val
+                status=0
+            else
+                conda_args="${conda_args} $val"
+            fi
+            case "$val" in
+                -*) ;;
+                 *) pkg_names="${pkg_names:+$pkg_names }$val" ;;
+            esac
+            ;;
+    esac
+    shift
+done
+
+if [ -z "$conda_args" -o $status = 1 ]; then
+    echo "Usage: `basename $0` [-h] [--copy-pkgs] [-t tag] conda_args" >&2
+    exit $status
+fi
+
+# Get common build configuration & parse the version tag:
+. ./config || exit 1
+
+# Delegate the build to conda (recipes pick up tag & DATE from environment).
+# Logging while displaying to STDOUT without losing the error status gets
+# insanely convoluted (http://www.unix.com/302265010-post3.html), so capture
+# the output from this script if needed (which is more modular anyway).
+conda-build $conda_args || exit 1
+
+# Copy package(s) to the shared collection ("channel") if requested (used
+# only on primary build OSs, to avoid collisions on a given architecture):
+if [ -n "$copy_pkgs" ]; then
+
+    # Parse the conda platform from "conda info" and determine the
+    # corresponding package subdirectory:
+    get_platform || exit 1
+    dest="$PKGDIR/$platform"
+    mkdir -p "$dest" || exit 1
+
+    # Ask conda for the paths to the packages it should have built above and
+    # copy them to a shared collection (only if all package builds succeed):
+    pkgs=`conda-build --output $pkg_names`
+    for pkg in $pkgs; do
+        if cp -pf "$pkg" "$dest/"; then
+            echo Copied `echo "$pkg" | sed -e 's|^.*/||'`
+        else
+            # echo "Failed to copy $pkg to $dest" >&2  # no: propagate cp error
+            status=1
+        fi
+    done
+fi
+
+# Put something in the recipe to determine how to get its source?
+# - checkout / checkout
+#   - option "-a" for build master? Or parse meta-package?
+# How to copy the dependencies of a meta-package?
+# - Spin out the above into a function so it can also be done elsewhere?
+# - Parse meta-package to get constituents?
+# - Make special case for "gemini" package?
+# Script "index" for build master to re-generate it.
+
+exit $status
+

@@ -1,4 +1,4 @@
-{% set version = TAG + '_' + DATE %}
+{% set version = tag + '_' + DATE %}
 
 about:
     home: http://www.gemini.edu/sciops/data-and-results/processing-software
