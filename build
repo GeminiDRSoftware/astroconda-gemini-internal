@@ -66,9 +66,12 @@ if [ -n "$copy_pkgs" ]; then
     dest="$PKGDIR/$platform"
     mkdir -p "$dest" || exit 1
 
+    # Augment the list of requested recipes with their internal dependencies:
+    get_local_pkgs "$pkg_names"
+
     # Ask conda for the paths to the packages it should have built above and
     # copy them to a shared collection (only if all package builds succeed):
-    pkgs=`conda-build --output $pkg_names`
+    pkgs=`conda-build --output $local_pkgs`
     for pkg in $pkgs; do
         if cp -pf "$pkg" "$dest/"; then
             echo Copied `echo "$pkg" | sed -e 's|^.*/||'`
@@ -80,13 +83,10 @@ if [ -n "$copy_pkgs" ]; then
 fi
 
 # Put something in the recipe to determine how to get its source?
-# - checkout / checkout
+# - checkout / checkout.sh
 #   - option "-a" for build master? Or parse meta-package?
-# How to copy the dependencies of a meta-package?
-# - Spin out the above into a function so it can also be done elsewhere?
-# - Parse meta-package to get constituents?
-# - Make special case for "gemini" package?
 # Script "index" for build master to re-generate it.
+# - Do this separately to avoid race conditions.
 
 exit $status
 

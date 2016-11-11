@@ -61,7 +61,7 @@ fi
 export DATE CVSROOT SVNROOT WIKIPAGE TAG SRCDIR WORKDIR AREXT tag version
 
 
-# A couple of functions shared by the other scripts:
+# A few functions shared by the other scripts:
 
 copy_tarball() {  # copy_tarball root_name
     local pkgstr=$1
@@ -91,10 +91,56 @@ checkout_victory() {  # checkout_victory status
 
 get_platform() {  # get_platform
     local re="^[ \t]*platform[ \t]*:[ \t]*"
-    platform=`conda info 2> /dev/null |egrep "$re" | sed -e "s|$re||" -e 's|[ \t]*$||'`
+    platform=$(conda info 2> /dev/null |egrep "$re" \
+               | sed -e "s|$re||" -e 's|[ \t]*$||')
     if [ -z "$platform" ]; then
         echo "Failed to determine platform from \"conda info\"" >&2
         return 1
     fi
+}
+
+get_local_deps() {  # get_local_deps recipe (returns local_deps)
+    # Grep the "build:" section of a specified package's meta.yaml for any
+    # dependencies with recipes defined under the current directory. Returns
+    # only immediate dependencies of a single package.
+    local_deps=""
+    local all_deps=$(sed -ne '/^[ \t]*requirements:/,$p' "$1/meta.yaml" \
+        |sed -ne '/^[ \t]*build:/,/^[ \t]*[^ \t][^ \t]*:/p')
+    for f in `find * -type d`; do
+        if echo "$all_deps" | egrep -q "^[ \t]*-[ \t]*$f([ \t]|$)"; then
+            local_deps="${local_deps:+$local_deps }$f"
+        fi
+    done
+}
+
+get_local_pkgs() {  # get_local_pkgs recipes (returns local_pkgs)
+    # For a given list of package recipes defined under the current directory,
+    # recursively add any likewise-defined recipes they depend on. This just
+    # seems easier than trying to hook into the conda.resolve logic.
+    local args pkg recipe new_deps found
+    if [ "$1" = "RECURSE" ]; then
+        shift
+    else
+        local_pkgs=""  # start with empty list at top-level invocation
+    fi
+    for recipe in $@; do
+        new_deps=""; first=1
+        get_local_deps $recipe
+        for pkg in $recipe $local_deps; do
+            found=""
+            for lpkg in $local_pkgs; do
+                if [ "$lpkg" = "$pkg" ]; then
+                    found=1
+                    break
+                fi
+            done
+            if [ -z "$found" ]; then
+                local_pkgs="${local_pkgs:+$local_pkgs }$pkg"
+                [ -z "$first" ] && new_deps="$new_deps $pkg"
+            fi
+            first=""
+        done
+        get_local_pkgs RECURSE $new_deps
+    done
 }
 
