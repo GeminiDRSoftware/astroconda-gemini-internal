@@ -43,7 +43,7 @@ while [ -n "$1" ]; do
 done
 
 if [ -z "$conda_args" -o $status = 1 ]; then
-    echo "Usage: `basename $0` [-h] [--copy-pkgs] [-t tag] conda_args" >&2
+    echo "Usage: `basename $0` [-h] [--copy-pkgs] [--tag tag] conda_args" >&2
     exit $status
 fi
 
