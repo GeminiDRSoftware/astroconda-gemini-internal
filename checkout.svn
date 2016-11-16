@@ -11,13 +11,16 @@ deps="svn wget"  # (wget is only on Linux)
 
 # Parse script arguments:
 status=1
-unset rev pkgname tag
+unset clean rev pkgname tag
 while [ -n "$1" ]; do
     case "$1" in
         -h)
             pkgname=""
             status=0
             break
+            ;;
+        --clean)
+            clean=1
             ;;
         -r) # override wiki revision
             shift
@@ -43,7 +46,7 @@ while [ -n "$1" ]; do
 done
 
 if [ -z "$pkgname" -o $status = 1 ]; then
-    echo "Usage: `basename $0` [-r rev] package [tag]" >&2
+    echo "Usage: `basename $0` [--clean] [-r rev] package [tag]" >&2
     exit $status
 fi
 
@@ -208,8 +211,11 @@ fi
 #     status=$?
 # fi
 
-# Copy the source to /rtfperm, for use by each build machine:
-[ $status = 0 ] && copy_tarball "$pkgstr"
+# Copy the source to /rtfperm, for use by each build machine (removing any old
+# versions if requested to):
+if [ $status = 0 ]; then
+    copy_tarball "$pkgstr" $clean || status=1
+fi
 
 # Report success/failure:
 checkout_victory $status

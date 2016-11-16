@@ -63,10 +63,35 @@ export DATE CVSROOT SVNROOT WIKIPAGE TAG SRCDIR WORKDIR AREXT tag version
 
 # A few functions shared by the other scripts:
 
-copy_tarball() {  # copy_tarball root_name
+# Finish moving the above into here and change calls to check exit status &
+# specify the clean argument.
+
+copy_tarball() {  # copy_tarball root_name [clean]
     local pkgstr=$1
-    echo -n "Copying tarball to local shared mount..."
+    local clean=$2
+    local status=0
+    local patt
     if [ -n "$SRCDIR" -a -w "$SRCDIR/" ]; then
+        # Don't wait for success/failure before removing old tarballs (if
+        # requested), as the disk is then more likely to run out of space,
+        # which at this point is the main failure mode anyway.
+        if [ -n "$clean" ]; then
+            echo -n "Removing old tarball(s)..."
+            # For now, remove only files that match exactly, apart from the
+            # trailing date (ie. that were probably also auto-generated):
+            patt=$(echo "$pkgstr" | sed -e 's|\([_-]\)[0-9]\{8\}$|\1|')
+            if [ -n "$patt" ]; then
+                if rm -f "$SRCDIR/${patt}"*.${AREXT}; then
+                    echo "done."
+                else
+                    echo "failed."
+                    # status=1  # non-critical error
+                fi
+            else
+                echo "skipped (bad root_name; matches *.${AREXT})."
+            fi
+        fi
+        echo -n "Copying tarball to local shared mount..."
         if cp -p ${pkgstr}.${AREXT} "$SRCDIR/"; then
             echo "done."
         else
@@ -77,6 +102,7 @@ copy_tarball() {  # copy_tarball root_name
         echo "cannot write to ${SRCDIR}." >&2
         status=1
     fi
+    return $status
 }
 
 checkout_victory() {  # checkout_victory status

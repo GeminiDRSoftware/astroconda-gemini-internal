@@ -6,20 +6,40 @@
 deps="cvs"
 
 # Parse script arguments:
-if [ "$1" = "-l" ]; then  # optional CVS login flag
-	cvslogin=1
-        shift
-else
-	cvslogin=0
-fi
-
+status=0
 pkgname="gemini_iraf"
+unset h cvslogin clean tag
+while [ -n "$1" ]; do
+    case "$1" in
+        -h)
+            h=1
+            status=0
+            break
+            ;;
+        -l)
+            cvslogin=1
+            ;;
+        --clean)
+            clean=1
+            ;;
+        -*)
+            status=1
+            break
+            ;;
+        *)
+            if [ -z "$tag" ]; then
+                tag=$1
+            else
+                status=1
+            fi
+            ;;
+    esac
+    shift
+done
 
-tag="$1"
-
-if [ $# -gt 1 ]; then
-	echo "Usage: `basename $0` [-l] [tag]" >&2
-	exit 1
+if [ -n "$h" -o $status = 1 ]; then
+	echo "Usage: `basename $0` [-h] [-l] [--clean] [tag]" >&2
+	exit $status
 fi
 
 # Get common build configuration & parse the version tag:
@@ -35,7 +55,7 @@ mkdir -p $subdir
 cd $subdir
 
 # Check out the appropriately-tagged package version
-if [ $cvslogin = 1 ]; then
+if [ -n "$cvslogin" ]; then
 	cvs -d $CVSROOT login
 fi
 echo -n "Checking out $pkgname $TAG..."
@@ -80,7 +100,9 @@ fi
 # fi
 
 # Copy the source to /rtfperm, for use by each build machine:
-[ $status = 0 ] && copy_tarball "$pkgstr"
+if [ $status = 0 ]; then
+    copy_tarball "$pkgstr" $clean || status=1
+fi
 
 checkout_victory $status
 
