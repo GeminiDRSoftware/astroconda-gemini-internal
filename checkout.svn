@@ -59,9 +59,15 @@ fi
 case "$pkgname" in
     gemini_python|gemini-python)
         pkgname="gemini_python"
+        subpkg=$pkgname
         ;;
     gemaux|gemaux_python|gemaux-python)
         pkgname="gemaux_python"
+        subpkg=$pkgname
+        ;;
+    disco_stu|disco-stu)
+        pkgname="gemini_python"
+        subpkg="disco_stu"
         ;;
     *)
         echo "Invalid package name: '$pkgname'" >&2
@@ -74,10 +80,10 @@ esac
 
 # Generate temporary working name/directory (could be a shared script?)
 cd $WORKDIR
-session=$pkgname.$$
+session=$subpkg.$$
 subdir=tmp_checkouts/${session}
 rm -fr $subdir
-pkgstr=${pkgname}-${version}
+pkgstr=${subpkg}-${version}
 mkdir -p ${subdir}/${pkgstr}
 cd $subdir
 
@@ -155,11 +161,16 @@ if [ $wiki_status = 0 ]; then
     # Attempt check out. Sometimes this times out over the network to Hawaii
     # and a single failure can mean repeating a whole addon build process,
     # so try 3 times before giving up:
-    echo -n "Checking out $pkgname $TAG..."
-    if [ "$branch" = "trunk" ]; then
-        url=$SVNROOT/$pkgname/trunk/
+    echo -n "Checking out $subpkg $TAG..."
+    if [ "$subpkg" = "$pkgname" ]; then
+        suburl=""
     else
-        url=$SVNROOT/$pkgname/branches/QAP/$branch/
+        suburl="${subpkg}"
+    fi
+    if [ "$branch" = "trunk" ]; then
+        url=$SVNROOT/$pkgname/trunk/$suburl
+    else
+        url=$SVNROOT/$pkgname/branches/QAP/$branch/$suburl
     fi
     checkout_status=1
     count=0
