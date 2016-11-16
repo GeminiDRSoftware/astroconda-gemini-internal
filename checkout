@@ -1,0 +1,75 @@
+#!/bin/sh
+
+# Call the appropriate script (defined in each recipe) to check out the source
+# code and package it as a tarball for one or more Gemini internal packages.
+
+# Currently, the user must already have SVN login credentials stored.
+
+# Parse script arguments:
+status=1
+unset flags tag pkg_names
+while [ -n "$1" ]; do
+    case "$1" in
+        -h|--help)
+            pkg_names=""
+            status=0
+            break
+            ;;
+        --clean)
+            flags="${flags:+$flags }--clean"
+            ;;
+        --tag)
+            if [ -n "$tag" ]; then
+                status=1
+                break
+            fi
+            shift
+            tag=$1
+            ;;
+        -*)
+            status=1
+            break
+            ;;
+        *)
+            val=$(echo "$1" | sed -e 's|/*$||')
+            if [ -z "$pkg_names" ]; then
+                pkg_names="$val"
+                status=0
+            else
+                pkg_names="$pkg_names $val"
+            fi
+            ;;
+    esac
+    shift
+done
+
+if [ -z "$pkg_names" -o $status = 1 ]; then
+    echo "Usage: `basename $0` [-h] [--clean] [--tag tag] recipes" >&2
+    exit $status
+fi
+
+# Get common build configuration & parse the version tag etc.:
+. ./config || exit 1
+
+# Augment the list of requested recipes with their internal dependencies:
+get_local_pkgs "$pkg_names"
+
+# Make sure the output directory is writeable:
+if [ -z "$SRCDIR" -o ! -w "$SRCDIR/" ]; then
+    echo "Cannot write to ${SRCDIR}" >&2
+    exit 1
+fi
+
+# Loop over the specified packages:
+for r in $local_pkgs; do
+
+    # Delegate to whichever back-end script is defined by the recipe:
+    if ! "$r/checkout.sh" $flags; then
+        echo "Failed to run $r/checkout.sh." >&2
+        status=1
+    fi
+    echo
+
+done
+
+exit $status
