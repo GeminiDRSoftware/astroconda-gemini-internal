@@ -7,6 +7,8 @@
 # it can be set in the environment prior to running these scripts, but will
 # then need updating when building on different days in a persistent session).
 
+deps="conda-build"
+
 # Parse script arguments:
 status=1
 unset tag conda_args

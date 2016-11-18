@@ -1,7 +1,5 @@
 # Common configuration for checking out & building Gemini packages.
 
-DATE=`date +%Y%m%d | tr A-Z a-z`
-
 CVSROOT=":pserver:rtfuser@polaris.hi.gemini.edu:/usr/software/dev/cvsroot/girafcvsroot"
 SVNROOT="http://chara.hi.gemini.edu/svn/DRSoftware"
 WIKIPAGE="http://gdpsg.wikis-internal.gemini.edu/index.php/OPS-ServerConfigurationManagement"
@@ -44,6 +42,14 @@ case "$tag" in
         ;;
 esac
 [ -z "$TAG" ] && TAG=`echo $tag | tr a-z A-Z`
+
+# Date defaults to today's YYYYMMDD, unless already set in the environment
+# (to ensure persistence over the lifetime of a job):
+if [ -z "$DATE" ]; then
+    DATE=`date +%Y%m%d | tr A-Z a-z`
+else
+    echo "WARNING: DATE=$DATE overridden by user environment" >&2
+fi
 
 # Construct version string from the tag & date:
 version="${tag}_${DATE}"
