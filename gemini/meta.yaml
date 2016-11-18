@@ -1,0 +1,30 @@
+{% set version = tag + '_' + DATE %}
+
+about:
+    home: http://www.gemini.edu/sciops/data-and-results/processing-software
+    license: BSD
+    summary: Collection of Gemini data reduction packages (internal versions)
+build:
+    number: '0'
+package:
+    name: gemini
+    version: {{ tag }}
+requirements:
+    # Require today's constituent packages to have been built, allowing this
+    # meta-package to be used for generating them all at once.
+    build:
+    - iraf.gemini {{ version }}
+    - gemini.gemini_python {{ version }}
+    - gemini.gemaux_python {{ version }}
+    # - gemini.disco_stu {{ version }}  # needs updating to use git repo/tags
+    # At install time, don't tie dependencies to today's date, allowing them to
+    # be updated individually (the latest builds should be picked up anyway).
+    # The meta-package must remain tied to a tag, however, in order to be used
+    # for installing all the corresponding packages at once, so will need to be
+    # removed when manually installing packages with mixed tags.
+    run:
+    - iraf.gemini {{ tag }}_*
+    - gemini.gemini_python {{ tag }}_*
+    - gemini.gemaux_python {{ tag }}_*
+    # - gemini.disco_stu {{ tag }}_*  # needs updating to use git repo/tags
+
