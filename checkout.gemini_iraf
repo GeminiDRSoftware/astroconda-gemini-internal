@@ -101,7 +101,7 @@ fi
 
 # Copy the source to /rtfperm, for use by each build machine:
 if [ $status = 0 ]; then
-    copy_tarball "$pkgstr" $clean || status=1
+    mv_src_tarball "$pkgstr" $clean || status=1
 fi
 
 checkout_victory $status

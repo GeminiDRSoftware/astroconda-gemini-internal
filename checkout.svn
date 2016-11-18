@@ -225,7 +225,7 @@ fi
 # Copy the source to /rtfperm, for use by each build machine (removing any old
 # versions if requested to):
 if [ $status = 0 ]; then
-    copy_tarball "$pkgstr" $clean || status=1
+    mv_src_tarball "$pkgstr" $clean || status=1
 fi
 
 # Report success/failure:

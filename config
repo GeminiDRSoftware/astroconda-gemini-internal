@@ -75,7 +75,7 @@ export DATE CVSROOT SVNROOT WIKIPAGE TAG SRCDIR WORKDIR AREXT tag version
 # Finish moving the above into here and change calls to check exit status &
 # specify the clean argument.
 
-copy_tarball() {  # copy_tarball root_name [clean]
+mv_src_tarball() {  # mv_src_tarball root_name [clean]
     local pkgstr=$1
     local clean=$2
     local status=0
@@ -100,8 +100,8 @@ copy_tarball() {  # copy_tarball root_name [clean]
                 echo "skipped (bad root_name; matches *.${AREXT})."
             fi
         fi
-        echo -n "Copying tarball to local shared mount..."
-        if cp -p ${pkgstr}.${AREXT} "$SRCDIR/"; then
+        echo -n "Moving tarball to local shared mount..."
+        if mv -f ${pkgstr}.${AREXT} "$SRCDIR/"; then
             echo "done."
         else
             echo "failed."
