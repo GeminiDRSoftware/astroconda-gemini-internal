@@ -9,9 +9,12 @@ WIKIPAGE="http://gdpsg.wikis-internal.gemini.edu/index.php/OPS-ServerConfigurati
 SRCDIR="/rtfperm/ac_sources"
 PKGDIR="/rtfperm/ac_packages"
 WORKDIR="/rtfproc/ac_build"
+ACDIR="/rtfproc/anaconda"    # (may be a symlink)
 AREXT="tar.gz"
 
 mkdir -p "$WORKDIR" "$PKGDIR"
+
+PATH=${ACDIR}/bin:${PATH}    # ensure anaconda is in the PATH
 
 # Package tag to check out ("latest" if unspecified):
 unset TAG

@@ -1,0 +1,80 @@
+#!/bin/sh
+
+# Copy built packages to a shared "channel" directory (after running ./build;
+# only used on primary build OSs, to avoid duplicate architecture collisions).
+
+# Parse script arguments:
+status=1
+unset tag pkg_names
+while [ -n "$1" ]; do
+    case "$1" in
+        -h|--help)
+            conda_args=""
+            status=0
+            break
+            ;;
+        --tag)
+            if [ -n "$tag" ]; then
+                status=1
+                break
+            fi
+            shift
+            tag=$1
+            ;;
+        -*)
+            status=1
+            break
+            ;;
+        *)
+            val=`echo "$1" | sed -e 's|/*$||'`
+            if [ -z "$pkg_names" ]; then
+                pkg_names=$val
+                status=0
+            else
+                pkg_names="${pkg_names} $val"
+            fi
+            ;;
+    esac
+    shift
+done
+
+if [ -z "$pkg_names" -o $status = 1 ]; then
+    echo "Usage: `basename $0` [-h] [--tag tag] recipes" >&2
+    exit $status
+fi
+
+# Get common build configuration & parse the version tag:
+. ./config || exit 1
+
+# Parse the conda platform from "conda info" and determine the corresponding
+# channel subdirectory:
+get_platform || exit 1
+dest="$PKGDIR/$platform"
+mkdir -p "$dest" || exit 1
+
+# Augment the list of requested recipes with their internal dependencies
+# (which conda should also have built in turn):
+get_local_pkgs "$pkg_names"
+
+# Ask conda for the paths to the packages it should have built above and copy
+# them to a shared collection:
+pkgs=`conda-build --output $local_pkgs`
+for pkg in $pkgs; do
+    fname=`basename "$pkg"`
+    if cp -pf "$pkg" "$dest/"; then
+        echo "Copied $fname"
+    elif [ ! -r "$pkg" -a -r "$dest/$fname" ]; then
+        echo "Re-used $fname"  # (picked up from channel, not rebuilt)
+    else
+        # echo "Failed to copy $pkg to $dest" >&2  # no: propagate cp error
+        status=1
+    fi
+done
+
+# To do:
+# - Use this step for public builds as well.
+# - Script "index", to re-generate channel index.
+#   - Do this separately, on build master, to avoid race conditions.
+
+exit $status
+
