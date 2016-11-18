@@ -4,12 +4,14 @@
 # only used on primary build OSs, to avoid duplicate architecture collisions).
 #
 # Only one instance at a time should be run on any given machine, due to a
-# conda-build bug (retry warning going to stdout instead of stderr).
+# conda-build bug (retry warning goes to stdout instead of stderr), or for a
+# given tag & platform (eg. linux-64), to avoid package copy collisions.
 
-deps="conda-build"
+deps="conda-build conda-index"
 
 # Parse script arguments:
 status=1
+index=1
 unset tag pkg_names
 while [ -n "$1" ]; do
     case "$1" in
@@ -17,6 +19,9 @@ while [ -n "$1" ]; do
             conda_args=""
             status=0
             break
+            ;;
+        --no-index)
+            index=""
             ;;
         --tag)
             if [ -n "$tag" ]; then
@@ -44,7 +49,7 @@ while [ -n "$1" ]; do
 done
 
 if [ -z "$pkg_names" -o $status = 1 ]; then
-    echo "Usage: `basename $0` [-h] [--tag tag] recipes" >&2
+    echo "Usage: `basename $0` [-h] [--no-index] [--tag tag] recipes" >&2
     exit $status
 fi
 
@@ -59,7 +64,10 @@ mkdir -p "$dest" || exit 1
 
 # Augment the list of requested recipes with their internal dependencies
 # (which conda should also have built in turn):
-get_local_pkgs "$pkg_names"
+if ! get_local_pkgs "$pkg_names"; then
+    echo "Failed to parse local deps from recipe meta.yaml file(s)" >&2
+    exit 1
+fi
 
 # Ask conda for the paths to the packages it should have built above and copy
 # them to a shared collection.
@@ -81,10 +89,16 @@ else
     status=1
 fi
 
+# Re-generate the channel index for the appropriate platform, if requested:
+if [ -n "$index" ]; then
+    if ! conda-index "$dest"; then
+        echo "Failed to re-generate channel index for $platform"
+        status=1
+    fi
+fi
+
 # To do:
 # - Use this step for public builds as well.
-# - Script "index", to re-generate channel index.
-#   - Do this separately, on build master, to avoid race conditions.
 
 exit $status
 

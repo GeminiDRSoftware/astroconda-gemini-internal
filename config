@@ -160,7 +160,7 @@ get_local_pkgs() {  # get_local_pkgs recipes (returns local_pkgs)
     fi
     for recipe in $@; do
         new_deps=""; first=1
-        get_local_deps $recipe
+        get_local_deps $recipe || return 1
         for pkg in $recipe $local_deps; do
             found=""
             for lpkg in $local_pkgs; do
