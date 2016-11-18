@@ -1,0 +1,54 @@
+#!/bin/sh
+
+# Wrapper for continuous integration builds across multiple machines, using
+# Steuermann.
+#
+# Executes a build for each combination of Gemini package, tag and build
+# machine and collects each "primary" build (usually from the oldest OS for a
+# given architecture) into a shared conda "channel" directory.
+#
+# To install Steuermann from the Ureka repos (for as long as that works):
+#   cd ..
+#   svn co https://aeon.stsci.edu/ssb/svn/u-rel/build/trunk ur_control
+#   export URWD=`pwd`/ur_control/sm_install
+#   export REVFLAGS="-r 1426" # (a known-working revision from Ureka 1.5.1)
+#   cd ur_control/devtools
+#   . setup
+#   ./installpy
+#   ./installtools
+#
+# Anaconda also needs to be installed in /astro/iraf on each machine (wherever
+# is defined in "config").
+
+#deps="smc pdk"
+
+unset tag
+
+# Figure out what directory this repo lives in:
+scripts=$(cd $(dirname "$0"); pwd)
+
+# Ureka's Steuermann setup requires this specific variable to be set (& expects
+# to find its own package installation and its SQL database & logs there):
+export URWD=$(echo "$scripts" | sed -e 's|[^/]*/*$|ur_control/sm_install|')
+
+# Get some common definitions (& do a couple of checks):
+. ./config || exit 1
+
+# Make sure Steuermann & Pandokia are in the PATH (before anaconda):
+export PATH=${URWD}/python/bin:${URWD}/bin:${PATH}
+export PYTHONPATH=${URWD}/python/lib/python:${PYTHONPATH}
+
+if ! cd "$URWD"; then
+    echo "Cannot cd to $URWD" >&2
+    exit 1
+fi
+
+# Start Web server if not already running:
+if ! ps -ef | awk '{for (n=8; n<NF; n++) printf("%s ", $n); print $NF}'\
+            | grep -v "^grep" |grep -q "pdk webserver"; then
+    (cd "${URWD}/python/bin"; pdk webserver &)
+fi
+
+# Run the build matrix with Steuermann:
+smc -a -h "$scripts/build_hosts.ini" "$scripts/build.sm" || exit 1
+

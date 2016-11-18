@@ -1,0 +1,86 @@
+# Build matrix of internal Gemini package versions for AstroConda
+# (dev/internal/gnops/gsops for all our packages on all our build machines).
+
+CONDITIONS
+    import platform
+    node = platform.node()
+    stsci  = node.endswith('.stsci.edu')
+    gemini = node.endswith('gemini.edu')
+    hi_gemini = node.endswith('hi.gemini.edu')
+    cl_gemini = node.endswith('cl.gemini.edu')
+END
+
+HOSTGROUP @build_master
+	IF stsci  : kelinda
+	IF hi_gemini : hbfdpdosx6
+	IF cl_gemini : sbfrtf64re5
+
+HOSTGROUP @primary
+	IF hi_gemini : hbfdpdosx6
+	IF cl_gemini : sbfrtf32re5 sbfrtf64re5 sbfrtfosx6
+
+HOSTGROUP @secondary
+	IF hi_gemini : 
+	IF cl_gemini : sbfrtf64re6 sbfrtfosx10 sbfrtfosx11
+
+HOSTGROUP @build_hosts : @primary @secondary
+
+
+TABLE setup HOST @build_hosts
+
+    CMD rm_remote_repo RUN "rm -fr %(workdir)s/%(gem_int_repo)s"
+
+    CMD copy_repo LOCAL "pwd; cd ../..; scp -r %(gem_int_repo)s %(hostname)s:%(workdir)s"
+        AFTER rm_remote_repo
+
+
+TABLE checkout_gemini_source HOST @build_master
+
+    CMD dev RUN "cd %(gem_int_repo)s; ./checkout --clean --tag dev gemini"
+        AFTER setup/copy_repo
+
+    CMD internal RUN "cd %(gem_int_repo)s; ./checkout --clean --tag internal gemini"
+        AFTER setup/copy_repo
+
+    CMD gnops RUN "cd %(gem_int_repo)s; ./checkout --clean --tag gnops gemini"
+        AFTER setup/copy_repo
+
+    CMD gsops RUN "cd %(gem_int_repo)s; ./checkout --clean --tag gsops gemini"
+        AFTER setup/copy_repo
+
+
+TABLE build_gemini HOST @build_hosts
+
+    CMD dev RUN "cd %(gem_int_repo)s; ./build --tag dev gemini"
+        AFTER *:checkout_gemini_source/dev
+
+    CMD internal RUN "cd %(gem_int_repo)s; ./build --tag internal gemini"
+        AFTER *:checkout_gemini_source/internal
+        AFTER dev
+
+    CMD gnops RUN "cd %(gem_int_repo)s; ./build --tag gnops gemini"
+        AFTER *:checkout_gemini_source/gnops
+        AFTER internal
+
+    CMD gsops RUN "cd %(gem_int_repo)s; ./build --tag gsops gemini"
+        AFTER *:checkout_gemini_source/gsops
+        AFTER gnops
+
+
+TABLE distribute_gemini HOST @primary
+
+    CMD dev RUN "cd %(gem_int_repo)s; ./distribute --tag dev gemini"
+        AFTER build_gemini/*
+
+    CMD internal RUN "cd %(gem_int_repo)s; ./distribute --tag internal gemini"
+        AFTER build_gemini/*
+        AFTER dev
+
+    CMD gnops RUN "cd %(gem_int_repo)s; ./distribute --tag gnops gemini"
+        AFTER build_gemini/*
+        AFTER internal
+
+    CMD gsops RUN "cd %(gem_int_repo)s; ./distribute --tag gsops gemini"
+        AFTER build_gemini/*
+        AFTER gnops
+
