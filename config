@@ -45,9 +45,10 @@ esac
 
 # Date defaults to today's YYYYMMDD, unless already set in the environment
 # (to ensure persistence over the lifetime of a job):
+today=`date +%Y%m%d | tr A-Z a-z`
 if [ -z "$DATE" ]; then
-    DATE=`date +%Y%m%d | tr A-Z a-z`
-else
+    DATE="$today"
+elif [ "$DATE" != "$today" ]; then  # (config can get sourced multiple times)
     echo "WARNING: DATE=$DATE overridden by user environment" >&2
 fi
 
