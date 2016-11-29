@@ -23,8 +23,8 @@ requirements:
     # for installing all the corresponding packages at once, so will need to be
     # removed when manually installing packages with mixed tags.
     run:
-    - iraf.gemini {{ tag }}_*
-    - gemini.gemini_python {{ tag }}_*
-    - gemini.gemaux_python {{ tag }}_*
-    # - gemini.disco_stu {{ tag }}_*  # needs updating to use git repo/tags
+    - iraf.gemini {{ tag }}*            # omit '_' due to Anaconda 4.2.0 bug
+    - gemini.gemini_python {{ tag }}*
+    - gemini.gemaux_python {{ tag }}*
+    # - gemini.disco_stu {{ tag }}*     # needs updating to use git repo/tags
 
