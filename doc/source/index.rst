@@ -3,14 +3,23 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to astroconda-gemini-internal's documentation!
-======================================================
+Gemini internal AstroConda maintenance
+======================================
+
+This documentation covers not just the accompanying scripts, but also
+maintenance of AstroConda for internal use at Gemini in general.
 
 Contents:
 
 .. toctree::
    :maxdepth: 2
 
+   laptop_install
+   server_install
+   manual_packages
+   building_packages
+   gen_maintenance
+   troubleshooting
 
 
 Indices and tables

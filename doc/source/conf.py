@@ -34,6 +34,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.githubpages',
+    'rst2pdf.pdfbuilder',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -345,3 +346,7 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
+
+# Added for rst2pdf.
+pdf_documents = [('index', u'astroconda-gemini-internal', u'AstroConda Gemini maintenance', u'James E.H. Turner'),]
+
