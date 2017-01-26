@@ -59,7 +59,7 @@ fi
 # Parse the conda platform from "conda info" and determine the corresponding
 # channel subdirectory:
 get_platform || exit 1
-dest="$PKGDIR/$platform"
+dest="$PKGDIR/gemini/$platform"    # make public/gemini into a parameter?
 mkdir -p "$dest" || exit 1
 
 # Augment the list of requested recipes with their internal dependencies
