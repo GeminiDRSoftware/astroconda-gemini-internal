@@ -98,6 +98,8 @@ repeating fully maybe once a year (if our Anaconda version changes).
      cd /astro/iraf/linux-64
      ln -s anaconda2_4.2.0 anaconda
 
+.. _conda_channels:
+
 * If AstroConda has not been installed anywhere on this machine before (as the
   same user), configure the appropriate conda channels:
 
@@ -113,6 +115,8 @@ repeating fully maybe once a year (if our Anaconda version changes).
   http://astroconda.gemini.edu/gemini (which is copied automatically from the
   same directory at GS every 15 minutes). The order in which the channels are
   defined determines their precedence, in reverse.
+
+  .. _install_env:
 
 * Create a new conda environment that includes the Gemini package versions you
   would like to install, plus the rest of AstroConda:

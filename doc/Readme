@@ -1,0 +1,4 @@
+To build the documentation, you'll need to activate a conda environment
+containing sphinx and also install rst2pdf with pip. Then do "make html"
+(or whatever your intended "target" format is).
+

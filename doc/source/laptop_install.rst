@@ -51,6 +51,8 @@ Public distribution
   path, eg. ``source "$HOME/anaconda/bin/activate" gemini``).
 
 
+..  _internal_pkg_inst:
+
 Installation with internal packages
 ===================================
 
@@ -74,17 +76,12 @@ package to >=4.3.4 before the above authenticated URL will work:
      conda update conda
 
 A ``gemini`` meta-package can be used to install the full set of Gemini IRAF &
-Python packages, specifying which tag version to use (where available), which
-overrides any default versions in the public channels, eg.:
+Python packages [#f_dev_only]_, specifying which tag version to use (where
+available), which overrides any default versions in the public channels, eg.:
 
   .. code-block:: sh
 
      conda create -n dev anaconda iraf-all pyraf stsci gemini=dev
-
-  .. note::
-
-     Delete this: a sysadmin deleted all our packages by mistake and the
-     internal ones still need re-generating.
 
 You may also specify Gemini packages individually, including mixed and dated
 version tags, where needed for testing, commissioning etc.:
@@ -103,3 +100,8 @@ version tags, where needed for testing, commissioning etc.:
 See also :ref:`manual_packages`.
 
 .. [#f1] https://github.com/conda/conda/issues/323#issuecomment-273243809
+
+.. [#f_dev_only] Currently just for ``dev`` (which uses the ``QAP-2016-2_ac``
+                 branch), until we have a proper AstroConda-compatible
+                 version of Gemini Python.
+
