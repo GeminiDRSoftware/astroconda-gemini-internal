@@ -68,10 +68,7 @@ Rationale:
 Although it would be a positive development if we can standardize the
 appearance of the installation between our sites, the only code that actually
 requires any of the above conventions is the ``gempython.sh`` setup script in
-this repository. A csh-compatibility version still needs writing; its usage
-cannot be completely analagous (unless we support our own non-standard Anaconda
-environment setup), as it will have to source ``activate`` in bash before
-running the user's shell.
+this repository.
 
 
 Installation procedure
@@ -208,6 +205,11 @@ and our historical `i686` (etc.) installations. The Anaconda version
 overridden via ``ACVER`` and ``GEMVER`` environment variables, respectively,
 otherwise the latter normally defaults to ``internal`` (in whichever
 installation the link points to), but is set to ``dev`` during initial testing.
+
+A csh-compatibility version of this script still needs writing; its usage
+cannot be completely analagous (unless we support our own non-standard Anaconda
+environment setup), as it will have to source ``activate`` in bash before
+running the user's shell.
 
 .. note::
    Until the current major re-write of Gemini Python is complete, ``dev`` is

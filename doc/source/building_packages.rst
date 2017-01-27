@@ -6,7 +6,7 @@ Generating Conda packages
 Instructions for building internal packages (once everything is already set up)
 are found in the sections :ref:`internal_builds` and :ref:`ci_builds`. If you
 prefer, James can do the initial site setup, allowing you to get started
-quickly and fill in the rest later.
+quickly and study the rest later.
 
 
 Build prerequisites
@@ -221,7 +221,7 @@ constituent packages in turn, but you could equally well specify
        git pull                                         # (if needed)
 
 * On one of your machines (normally the build master), check out the source for
-  one or more internal packages:
+  one or more internal packages (to ``/rtfperm/ac_sources``):
 
     .. code-block:: sh
 
@@ -285,11 +285,12 @@ status/logs of each job.
 
 .. warning::
 
-   The build matrix temporarily has a lot of breakage (except for ``dev``)
-   because Gemini Python is not yet AstroConda-compatible and its checkout
-   script needs updating to retrieve the new git version. If other Gemini IRAF
-   tags are needed, use :ref:`internal_builds` for now and build just
-   ``iraf.gemini``.
+   Until Gemini Python v2 is ready and the checkout scripts here have been
+   updated to retrieve it from git, the build matrix currently packages
+   non-functional gemini_python & gemaux versions for tags other than (the
+   semi-functional) ``dev``. In the meantime, you may prefer to build only
+   ``iraf.gemini``, interactively (or omit the Python packages from your
+   subsequent install).
 
 * First-time build control setup (from Ureka):
 
