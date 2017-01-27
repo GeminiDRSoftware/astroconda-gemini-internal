@@ -9,7 +9,7 @@ Gemini internal AstroConda maintenance
 This documentation covers not just the accompanying scripts, but also
 maintenance of AstroConda for internal use at Gemini in general.
 
-Contents:
+.. Contents:
 
 .. toctree::
    :maxdepth: 2
@@ -20,12 +20,4 @@ Contents:
    building_packages
    gen_maintenance
    troubleshooting
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
