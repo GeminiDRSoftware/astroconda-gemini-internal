@@ -34,7 +34,7 @@ packages can be found in the following repositories:
 * Main AstroConda recipe collection:
     https://github.com/astroconda/astroconda-contrib.
 
-* AstroConda IRAF recipes (re-worked by James):
+* AstroConda IRAF recipes (by James):
     https://github.com/astroconda/astroconda-iraf.
 
 * Internal Gemini package recipes & documentation (for now):

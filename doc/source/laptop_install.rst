@@ -84,7 +84,8 @@ available), which overrides any default versions in the public channels, eg.:
      conda create -n dev anaconda iraf-all pyraf stsci gemini=dev
 
 You may also specify Gemini packages individually, including mixed and dated
-version tags, where needed for testing, commissioning etc.:
+version tags, where needed for testing, commissioning etc. (in which case you
+cannot install the meta package):
 
   .. code-block:: sh
 

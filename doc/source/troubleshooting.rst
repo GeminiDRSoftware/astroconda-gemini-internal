@@ -9,6 +9,15 @@ Troubleshooting
 
      conda install -f package
 
+  I think one example of this problem is
+  ``FileNotFoundError: [Errno 2] No such file or directory:
+  '/anaconda/envs/...'`` from ``conda create / install``, during
+  "Linking packages ...". I suspect this may happen after the machine runs out
+  of disk space on a previous installation attempt.
+
+  There is also a ``conda clean`` command that can be used when explicitly
+  removing and re-installing an environment or some of its packages.
+
 * Users can break specific programs by installing a permitted but incompatible
   mixture of packages from Anaconda and Conda Forge.
 
