@@ -1,1 +1,1 @@
-$(dirname "$0")/../checkout.svn disco_stu $tag $@
+$(dirname "$0")/../checkout.git disco_stu $tag $@
