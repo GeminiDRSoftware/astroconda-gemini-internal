@@ -78,14 +78,8 @@ esac
 # Get common build configuration & parse the version tag etc.:
 . ./config || exit 1
 
-# Generate temporary working name/directory (could be a shared script?)
-cd $WORKDIR
-session=$subpkg.$$
-subdir=tmp_checkouts/${session}
-rm -fr $subdir
-pkgstr=${subpkg}-${version}
-mkdir -p ${subdir}/${pkgstr}
-cd $subdir
+# Generate & change to temporary working directory:
+work_in_tmp_dir "$subpkg"
 
 # If a tag other than LATEST is specified, determine the corresponding revision
 # number by parsing a table on the group wiki page (sorry, Kathleen insisted on

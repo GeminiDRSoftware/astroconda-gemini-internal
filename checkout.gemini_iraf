@@ -45,6 +45,9 @@ fi
 # Get common build configuration & parse the version tag:
 . ./config || exit 1
 
+# Generate & change to temporary working directory:
+work_in_tmp_dir "$pkgname"
+
 # Generate temporary working name/directory
 cd $WORKDIR
 session=${pkgname}.$$

@@ -2,6 +2,7 @@
 
 CVSROOT=":pserver:rtfuser@polaris.hi.gemini.edu:/usr/software/dev/cvsroot/girafcvsroot"
 SVNROOT="http://chara.hi.gemini.edu/svn/DRSoftware"
+GITROOT="git@gitlab.gemini.edu:/DRSoftware"
 WIKIPAGE="http://gdpsg.wikis-internal.gemini.edu/index.php/OPS-ServerConfigurationManagement"
 
 SRCDIR="/rtfperm/ac_sources"
@@ -178,5 +179,16 @@ get_local_pkgs() {  # get_local_pkgs recipes (returns local_pkgs)
         done
         get_local_pkgs RECURSE $new_deps
     done
+}
+
+work_in_tmp_dir() {  # work_in_tmp_dir pkg_name
+    local pkgname=$1
+    cd $WORKDIR
+    session=$pkgname.$$
+    subdir=tmp_checkouts/${session}
+    rm -fr $subdir
+    pkgstr=${pkgname}-${version}
+    mkdir -p ${subdir} #/${pkgstr}
+    cd $subdir
 }
 
