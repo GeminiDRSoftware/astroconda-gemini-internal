@@ -1,0 +1,14 @@
+about:
+    home: https://www.tug.org/texlive
+    license: permissive (sui generis)
+    summary: TeX Live typsetting software distribution
+build:
+    binary_relocation: False # [osx]  # some obscure errs & not needed?
+    number: '0'
+package:
+    name: texlive
+    version: "20170220"
+source:
+    fn: install-tl-unx.tar.gz
+    url: http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+
