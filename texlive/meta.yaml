@@ -7,7 +7,7 @@ build:
     number: '0'
 package:
     name: texlive
-    version: "20170220"
+    version: "20170222"
 source:
     fn: install-tl-unx.tar.gz
     url: http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
