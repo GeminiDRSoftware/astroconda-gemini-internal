@@ -14,9 +14,9 @@ requirements:
     # meta-package to be used for generating them all at once.
     build:
     - iraf.gemini {{ version }}
-    - gemini.gemini_python {{ version }}
-    - gemini.gemaux_python {{ version }}
-    # - gemini.disco_stu {{ version }}  # needs updating to use git repo/tags
+    - gemini_python {{ version }}
+    - gemaux_python {{ version }}
+    # - disco_stu {{ version }}  # needs updating to use git repo/tags
     # At install time, don't tie dependencies to today's date, allowing them to
     # be updated individually (the latest builds should be picked up anyway).
     # The meta-package must remain tied to a tag, however, in order to be used
@@ -24,7 +24,7 @@ requirements:
     # removed when manually installing packages with mixed tags.
     run:
     - iraf.gemini {{ tag }}*            # omit '_' due to Anaconda 4.2.0 bug
-    - gemini.gemini_python {{ tag }}*
-    - gemini.gemaux_python {{ tag }}*
-    # - gemini.disco_stu {{ tag }}*     # needs updating to use git repo/tags
+    - gemini_python {{ tag }}*
+    - gemaux_python {{ tag }}*
+    # - disco_stu {{ tag }}*            # needs updating to use git repo/tags
 
