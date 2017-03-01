@@ -89,7 +89,7 @@ cannot install the meta package):
 
   .. code-block:: sh
 
-     conda create -n new_ccds anaconda iraf-all pyraf stsci iraf.gemini=gsops_20161205 gemini.gemini_python=dev_20170101  # (untested example)
+     conda create -n new_ccds anaconda iraf-all pyraf stsci iraf.gemini=gsops_20161205 gemini_python=dev_20170101  # (untested example)
 
   .. note::
 

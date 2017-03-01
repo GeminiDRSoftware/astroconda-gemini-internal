@@ -136,7 +136,7 @@ repeating fully maybe once a year (if our Anaconda version changes).
   existing package set, rather than duplicating everything.
 
   Pending further testing, if you want to install Disco Stu, you need to add
-  ``gemini.disco_stu`` to the above package list explicitly.
+  ``disco_stu`` to the above package list explicitly.
 
 * If you would like to make your new environment the default for a given
   abbreviated name, create or modify the appropriate link:
