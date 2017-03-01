@@ -61,15 +61,15 @@ match the one used at run-time (though it's probably a good idea).
 
   .. _custom_channels: http://conda.pydata.org/docs/custom-channels.html#test-custom-channels
 
-* As of Anaconda 4.2.0, conda-build pads build environment paths to a length
-  that doesn't work with IRAF (255 characters). Before you can build Gemini
-  IRAF or other external packages, you'll need to change this to 70 characters,
-  eg. as follows (or in your editor):
-
+* As of v2.0 (Anaconda 4.2.0), conda-build pads build environment paths to a
+  length that crashes IRAF (255 characters; see ``conda_build/config.py``). The
+  ``./build`` script will attempt to override this with 70 characters when the
+  specified recipes (or their build dependencies) include ``iraf*``, but this
+  requires conda-build >=2.1:
+  
     .. code-block:: sh
 
-       . /rtfproc/anaconda/bin/activate
-       sed -i -e "s/\(DEFAULT_PREFIX_LENGTH[ \t]*=\).*/\1 70/" $(python -c "import conda_build; print conda_build.__path__[0]")/config.py
+       conda update conda-build
 
   See https://github.com/conda/conda-build/issues/1559.
 

@@ -48,10 +48,42 @@ fi
 # Get common build configuration & parse the version tag:
 . ./config || exit 1
 
+# This whole block just decides whether the build path length must be reduced
+# to 70 for building Gemini IRAF (otherwise better to stick to 255, allowing
+# installation under longer paths). Although dependencies are expanded out here
+# to check for "iraf*", conda-build should decide the right order in which (and
+# whether) to build them, so is allowed to resolve them again below, for
+# generality. The "--prefix-length" option requires conda-build >= 2.1. This
+# would be better implemented per-package, as a meta.yaml option for
+# conda-build, or failing that by hooking into its dependency resolution.
+if conda-build -h | grep -q "\--prefix-length[ \t]"; then
+    pkg_names=""
+    for arg in $conda_args; do
+        case "$arg" in
+            -*) ;;
+            *) pkg_names="${pkg_names:+$pkg_names }$arg" ;;
+        esac
+    done
+    get_local_pkgs "$pkg_names"
+    for arg in $local_pkgs; do
+        case "$arg" in
+            iraf*)
+                conda_args="$conda_args --prefix-length=70"
+                break
+                ;;
+        esac
+    done
+else
+    echo "Warning: conda-build has no --prefix-length option?" >&2
+    echo "         Try \"conda update conda-build\" if IRAF builds fail." >&2
+    echo >&2
+fi
+
 # Delegate the build to conda (recipes pick up tag & DATE from environment).
 # Logging while displaying to STDOUT without losing the error status gets
 # insanely convoluted (http://www.unix.com/302265010-post3.html), so capture
 # the output from this script if needed (which is more modular anyway).
+echo "conda-build $conda_args"
 conda-build $conda_args || exit 1
 
 exit $status
