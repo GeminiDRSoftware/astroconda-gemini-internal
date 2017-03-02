@@ -1,0 +1,113 @@
+#!/bin/sh
+
+# Create a Python package source tarball from gitlab for a given tag.
+#
+# The user must already have an ssh key set up for reading from the repo.
+
+deps="git"
+
+# Parse script arguments:
+status=1
+unset clean pkgname tag
+while [ -n "$1" ]; do
+    case "$1" in
+        -h)
+            pkgname=""
+            status=0
+            break
+            ;;
+        --clean)
+            clean=1
+            ;;
+        -*)
+            status=1
+            break
+            ;;
+        *)
+            if [ -z "$pkgname" ]; then
+                pkgname=$1
+                status=0
+            elif [ -z "$tag" ]; then
+                tag=$1
+            else
+                status=1
+            fi
+            ;;
+    esac
+    shift
+done
+
+if [ -z "$pkgname" -o $status != 0 ]; then
+    echo "Usage: `basename $0` [--clean] package [tag]" >&2
+    exit $status
+fi
+
+# Get common build configuration & parse the version tag etc.:
+. ./config || exit 1
+
+# Generate & change to temporary working directory:
+work_in_tmp_dir "$pkgname"
+
+# Determine package repository URL from its name:
+url="${GITROOT}/${pkgname}.git"
+
+# Convert the specified Gemini tag into a git tag/revision:
+if [ $tag = "latest" ]; then
+    gtag=HEAD
+else
+    gtag=$tag
+fi
+
+# Attempt check out (do we need the 3 re-tries before giving up, as for SVN?).
+# There is currently no good way to distinguish a bad package/url name from a
+# time out (though gitlab does give a meaningful error message), but we're more
+# concerned about the latter for typical CI use and adding a list of permitted
+# names here seems unnecessarily brittle.
+echo "Checking out $pkgname $gtag..."
+status=1
+count=0
+while [ $status != 0 -a $count -lt 3 ]; do
+    [ $count -gt 0 ] && echo -n "repeat..."
+    git clone "$url" .
+    status=$?
+    count=`expr $count + 1`
+done
+
+# If the checkout worked, make sure the tag/rev is valid before proceeding:
+if [ $status = 0 ]; then
+    echo "Checkout done."
+    # This is not functionally necessary but allows reporting a clear error
+    # message when the tag is invalid ("git archive" exit status is ambiguous):
+    if ! git checkout -q $gtag; then
+        echo "Invalid tag/revision: $gtag." >&2  # bad args should go to stderr
+        status=1
+    fi
+else
+    echo "Checkout failed."
+fi
+
+# If the requested tag/rev was checked out successfully, extract a source
+# tarball with only that revision:
+if [ $status = 0 ]; then
+    echo -n "Making tarball..."
+    git archive -o ../${session}.tar.gz --format=tar.gz --prefix=$pkgstr/ $gtag
+    status=$?
+    cd ..
+    if [ $status = 0 ]; then
+        echo "done."
+        rm -fr $session
+        mv -f ${session}.tar.gz ${pkgstr}.tar.gz
+    else
+        echo "failed."
+    fi
+fi
+
+# Copy the source to /rtfperm, for use by each build machine (removing any old
+# versions if requested to):
+if [ $status = 0 ]; then
+    mv_src_tarball "$pkgstr" $clean || status=1
+fi
+
+# Report success/failure:
+checkout_victory $status
+
