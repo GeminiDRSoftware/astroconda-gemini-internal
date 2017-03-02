@@ -1,1 +1,1 @@
-$(dirname "$0")/../checkout.svn gemaux_python $tag $@
+$(dirname "$0")/../checkout.git gemaux_python $tag $@
