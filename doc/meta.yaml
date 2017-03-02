@@ -1,0 +1,17 @@
+about:
+    # An 'orrible 'ack to build the internal maintenance manual easily
+    # (at least until I can figure out why texlive only works properly when
+    # installed under its original path length, ie. during conda-build).
+    summary: Gemini internal maintenance docs
+build:
+    binary_relocation: False
+    number: '0'
+    script: (cd "$RECIPE_DIR" && make html && make latexpdf && mkdir -p "$PREFIX/share/astroconda_gemini_internal" && cp -pf build/latex/*.pdf "$PREFIX/share/astroconda_gemini_internal/")
+package:
+    name: astroconda_gemini_internal_doc
+    version: "1.0"
+requirements:
+    build:
+    - sphinx
+    - texlive
+
