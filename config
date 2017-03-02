@@ -4,6 +4,7 @@ CVSROOT=":pserver:rtfuser@polaris.hi.gemini.edu:/usr/software/dev/cvsroot/girafc
 SVNROOT="http://chara.hi.gemini.edu/svn/DRSoftware"
 GITROOT="git@gitlab.gemini.edu:/DRSoftware"
 WIKIPAGE="http://gdpsg.wikis-internal.gemini.edu/index.php/OPS-ServerConfigurationManagement"
+GITVERS="ops_versions.txt"
 
 SRCDIR="/rtfperm/ac_sources"
 PKGDIR="/rtfperm/ac_packages"
@@ -192,3 +193,25 @@ work_in_tmp_dir() {  # work_in_tmp_dir pkg_name
     cd $subdir
 }
 
+lookup() {  # lookup filename keyname (echoes a single "value")
+
+    # Look up a key name in the first column of a text file and (for the last
+    # occurrence found) print the corresponding value in subsequent column(s),
+    # ignoring any blank lines or comments beginning with "#".
+
+    local filename=$1
+    local keyname=$2
+
+    [ -r "$filename" ] || return 1
+
+    egrep -v '^[ 	]*(#|$)' "$filename" | sed -e 's|\([^\]\)#.*|\1|' |
+    {
+        value=""
+        while read thiskey thisval; do
+            case "$thiskey" in
+                $keyname) value=$thisval ;;
+            esac
+        done
+        echo $value
+    }
+}
