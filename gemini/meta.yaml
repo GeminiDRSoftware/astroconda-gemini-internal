@@ -16,7 +16,7 @@ requirements:
     - iraf.gemini {{ version }}
     - gemini_python {{ version }}
     - gemaux_python {{ version }}
-    # - disco_stu {{ version }}  # needs updating to use git repo/tags
+    - disco_stu {{ version }}
     # At install time, don't tie dependencies to today's date, allowing them to
     # be updated individually (the latest builds should be picked up anyway).
     # The meta-package must remain tied to a tag, however, in order to be used
@@ -26,5 +26,5 @@ requirements:
     - iraf.gemini {{ tag }}*            # omit '_' due to Anaconda 4.2.0 bug
     - gemini_python {{ tag }}*
     - gemaux_python {{ tag }}*
-    # - disco_stu {{ tag }}*            # needs updating to use git repo/tags
+    - disco_stu {{ tag }}*
 
