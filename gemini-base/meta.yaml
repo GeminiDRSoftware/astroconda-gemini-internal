@@ -18,7 +18,7 @@ build:
     number: '0'
 package:
     name: gemini-base
-    version: 0.1.1
+    version: 0.2
 requirements:
     # There are no build requirements since we don't maintain the packages
     # (and if we were to, it wouldn't be via this particular meta-package).
@@ -66,6 +66,7 @@ requirements:
     - d2to1 ==0.2.12
     - ds9 ==7.1  # 7.4-7.5 crash when receiving GMOS data with numdisplay
     - fftw ==3.3.4
+    - fitsverify ==4.18
     - htc_utils ==0.1
     - imexam ==0.6.2
     - photutils ==0.3
