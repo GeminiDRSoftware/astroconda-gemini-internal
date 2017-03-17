@@ -7,7 +7,7 @@ about:
 build:
     binary_relocation: True
     number: '0'
-    script: python setup.py install
+    script: $PYTHON setup.py install
 package:
     name: gemaux_python
     version: {{ version }}
@@ -19,26 +19,29 @@ requirements:
     # "build" gemaux_python, but including them here ensures that they get
     # built and therefore that the package is installable.
     build:
-    - python x.x                # syntax needed to force 2.7 builds...
+    - python
     - astropy >=1.0.1
     - gemini_python =={{ version }}  # require same tag & checkout day?
     - matplotlib >=1.4.2
     - numpy >=1.9.1
     - pyds9 >=1.8.1
     - pyraf >=2.1.6
+    - python-dateutil >=2.5.3
     - scipy >=0.15.1
     - scikit-image >=0.10.1
     - stsci.numdisplay >=1.6
+    # Several of these modules are only used in one or two scripts, but all
+    # except pyds9 are already indirect dependencies via gemini_python anyway.
     run:
-    - python >=2.7,<3.0
-    - astropy >=1.0.1
+    - python
+    - astropy >=1.0.1                # just cleanir.py
     - gemini_python =={{ version }}  # require same tag & checkout day?
-    - matplotlib >=1.4.2
+    - matplotlib >=1.4.2             # just cleanir.py
     - numpy >=1.9.1
-    - pyds9 >=1.8.1
-    - pyraf >=2.1.6
-    - scipy >=0.15.1
-    - scikit-image >=0.10.1
+    - pyds9 >=1.8.1                  # just gsfpos/goipos
+    - pyraf >=2.1.6                  # just cleanir.py
+    - python-dateutil >=2.5.3        
+    - scipy >=0.15.1                 # just cleanir.py & create_illum_mask.py
+    - scikit-image >=0.10.1          # just create_illum_mask.py
     - stsci.numdisplay >=1.6
-    # - klpymisc?? (test_timer.py)
 
