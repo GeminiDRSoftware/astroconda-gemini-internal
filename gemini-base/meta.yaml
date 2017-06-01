@@ -18,7 +18,7 @@ build:
     number: '0'
 package:
     name: gemini-base
-    version: 0.2
+    version: 0.3
 requirements:
     # There are no build requirements since we don't maintain the packages
     # (and if we were to, it wouldn't be via this particular meta-package).
@@ -31,7 +31,6 @@ requirements:
     - iraf.tables ==3.17
     - iraf.stsdas ==3.17
     - iraf.stecf ==3.17
-    # - iraf.kepler ==2.6.2
     - iraf.cirred ==2007_12_13
     - iraf.ctio ==2010_11_18
     - iraf.cutoutpkg ==2001_04_05
@@ -56,6 +55,7 @@ requirements:
     - iraf.upsqiid ==2013_01_02
     # -----
     - pyraf ==2.1.11
+    - pyraf.kepler ==2.6.3
     # -----
     # - stsci ==1.0.2
     - stsci-hst ==1.0.4
