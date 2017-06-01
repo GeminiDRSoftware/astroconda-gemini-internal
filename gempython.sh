@@ -12,7 +12,7 @@ acdir="anaconda2_${ACVER}"
 if [ -n "$GEMVER" ]; then
     gemver=$(echo "$GEMVER" | tr 'A-Z' 'a-z')
 else
-    gemver=dev  # use "dev" instead of "internal" during AstroConda testing
+    gemver=internal
 fi
 
 status=0
