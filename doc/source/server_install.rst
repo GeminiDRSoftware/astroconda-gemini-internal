@@ -185,7 +185,10 @@ where `hostname` can be a maintainer's own desktop machine, such as `cactus` at
 GS. After checking ``~/rslog`` to ensure that the correct files will be
 updated, the same command is repeated without the ``-n`` flag (whose purpose is
 just to show what rsync will do, without really copying or deleting any files).
-The ``-H`` is needed to copy Anaconda's hard links without duplication.
+The ``-H`` is needed to copy Anaconda's hard links without duplication. Note
+that using ``-n`` with ``-H`` can produce errors like
+``stat "some_file" failed: No such file or directory (2)``, but these go away 
+when doing the real transfer.
 
 The procedure for synchronizing files from the SBF server to the GS summit file
 server is similar, but involves issuing formal change requests etc. (which are
