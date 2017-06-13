@@ -62,17 +62,21 @@ match the one used at run-time (though it's probably a good idea).
   .. _custom_channels: http://conda.pydata.org/docs/custom-channels.html#test-custom-channels
 
 * As of v2.0 (Anaconda 4.2.0), conda-build pads build environment paths to a
-  length that crashes IRAF (255 characters; see ``conda_build/config.py``). The
-  ``./build`` script will attempt to override this with 70 characters when the
-  specified recipes (or their build dependencies) include ``iraf*``, but this
-  requires conda-build >=2.1:
+  length that crashes IRAF (255 characters; see ``conda_build/config.py``).
+  As of conda-build 2.1, this can be changed to 70 characters by adding the
+  command-line option ``--prefix-length 70`` when building. For internal
+  package versions, this option is used automatically by ``./build`` if the
+  specified recipes or their build dependencies include ``iraf*``.
   
-    .. code-block:: sh
-
-       conda update conda-build
+  If you have conda-build 2.0.x, you must instead change
+  ``DEFAULT_PREFIX_LENGTH`` to ``70`` in
+  ``site-packages/conda_build/config.py`` (or you can switch to the newer
+  version by doing ``conda update conda-build``).
 
   See https://github.com/conda/conda-build/issues/1559.
 
+
+.. _astroconda_source:
 
 Serving non-public source
 -------------------------
@@ -155,6 +159,7 @@ For non-CI builds, you may prefer to check out the recipes directly into
                      high-availability machine, such as a VM, rather than one
                      that might be switched off, decommissioned or has no UPS.
 
+.. _conda_builds:
 
 Building general conda packages
 ===============================
@@ -187,6 +192,96 @@ destination OS subdirectory afterwards.
    (this doesn't prevent building IRAF packages).
 
 Information on maintaining conda packages is linked from :ref:`recipe_maint`.
+
+
+Updating public Gemini packages
+===============================
+
+* Check out the ``astroconda-iraf`` recipes somewhere (normally on your master
+  build machine):
+
+    .. code-block:: sh
+
+       mkdir -p /rtfproc/ac_build/astroconda-iraf
+       cd /rtfproc/ac_build/astroconda-iraf
+
+       git clone https://github.com/astroconda/astroconda-iraf.git .
+       git pull  # if already cloned previously
+
+* Edit the ``meta.yaml`` definitions for the package you want to update, eg.:
+
+    .. code-block:: sh
+
+       $EDITOR iraf.gemini/meta.yaml &
+
+  - In the ``package`` section, change the ``version`` number as appropriate for
+    your new release (eg. ``"1.14"``).
+  - If you are rebuilding a version that has been released as a conda package
+    before, with minor differences such as a new build machine or an
+    Astroconda-specific patch, you should increment the ``number`` in the
+    ``build`` section by 1.
+  - In the ``source`` section, change both ``fn`` and ``url`` to reflect the new
+    source tarball name & location. You may use the public URL, such as
+    ``http://www.gemini.edu/sciops/data/software/gemini_v1131_for_iraf_2.16.tar.gz``,
+    if appropriate. If the upstream package has not yet been published and you
+    don't want to use the ``astroconda-source`` server
+    (see :ref:`here <astroconda_source>`), you may temporarily change the
+    ``url`` to an absolute path, prefixed with ``file://``
+    (eg. ``file:///rtfperm/ac_sources/gemini_v1131_for_iraf_2.16.tar.gz``).
+  - Remove any out-of-date ``patches`` section and (to avoid confusion) delete
+    the corresponding patch file from the conda recipe directory.
+  - Update any dependency changes in the ``requirements`` section (this should
+    not be necessary for Gemini IRAF).
+
+* Copy your modified ``astroconda-iraf`` directory to any other build
+  machine(s), with ``scp -pr`` or ``rsync -av`` (or pull your changes there, if
+  already committed). Current practice is to generate builds on CentOS 5 and
+  MacOS 10.6, soon to be CentOS 6 and MacOS 10.10.
+
+* Run ``conda-build`` on each machine, eg.:
+
+    .. code-block:: sh
+
+       source /rtfproc/anaconda/bin/activate       # (use the root env)
+       conda build --prefix-length 70 iraf.gemini
+
+  (Building the ``gemini`` meta-package also builds its constituent packages,
+  only if its dependencies aren't satisfied by existing conda packages.)
+
+* Copy the resulting package from ``conda-bld/linux-64/`` or
+  ``conda-bld/osx-64/`` on each machine (its path is printed near the end of
+  the build output) to the corresponding subdirectory of
+  ``/rtfperm/ac_packages/public/`` at Gemini South and run ``conda index`` on
+  the destination directory:
+
+    .. code-block:: sh
+
+       # On each build machine (eg.):
+       scp -p /rtfproc/anaconda/conda-bld/linux-64/iraf.gemini-1.14-0.tar.bz2 rtfuser@sbfrtf64re5:/rtfperm/ac_packages/public/linux-64/
+
+       # On any GS RTF machine (the arch doesn't have to match the package):
+       ssh rtfuser@sbfrtf64re5
+       source /rtfproc/anaconda/bin/activate
+       conda index /rtfperm/ac_packages/public/linux-64
+       conda index /rtfperm/ac_packages/public/osx-64
+
+  From there, it will be mirrored to ``http://astroconda.gemini.edu/public``
+  within 15 minutes (and thence to ``http://ssb.stsci.edu/gemini-mirror``
+  around midnight). There is no need to remove old versions of the package(s).
+
+  For testing purposes, you may prefer to put the package(s) in the Gemini
+  internal channel (mirrored from ``/rtfperm/ac_packages/gemini``), following
+  the same procedure, and only move them to the above public channel once you
+  are finished. You can also install packages into the anaconda installation
+  used to build them, without making a copy (``--use-local`` flag).
+
+* Install the new packages into a conda environment on your testing
+  machines, in the usual way, and run any necessary tests. Since you are using
+  public packages, this is similar to :ref:`laptop_install` (but you will need
+  to configure the Gemini internal channel if that's where you put them).
+
+* When you are ready, ask STScI (``jhunk`` & ``hack`` ``@stsci.edu``) to
+  update the main Astroconda channel with your new packages.
 
 
 .. _internal_builds:
@@ -285,12 +380,11 @@ status/logs of each job.
 
 .. warning::
 
-   Until Gemini Python v2 is ready and the checkout scripts here have been
-   updated to retrieve it from git, the build matrix currently packages
-   non-functional gemini_python & gemaux versions for tags other than (the
-   semi-functional) ``dev``. In the meantime, you may prefer to build only
-   ``iraf.gemini``, interactively (or omit the Python packages from your
-   subsequent install).
+   For tags other than ``dev``, the build matrix currently packages
+   gemini_python & gemaux versions that are not fully compatible with
+   Astroconda, pending updates to their stable branches. In the meantime, you
+   may prefer to build only ``iraf.gemini``, interactively (or omit the Python
+   packages from your subsequent install).
 
 * First-time build control setup (from Ureka):
 
