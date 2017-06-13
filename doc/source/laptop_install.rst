@@ -3,6 +3,8 @@
 Personal/laptop installation
 ****************************
 
+..  _public_pkg_inst:
+
 Public distribution
 ===================
 
@@ -93,16 +95,15 @@ cannot install the meta package):
 
   .. note::
 
-     Gemini Python is still being re-written to work with the recent dependency
-     versions in AstroConda, amongst other purposes. For the time being, the 
-     pipeline does not work properly in AstroConda (nor any similarly-recent
-     Python installations).
+     For the time being, only the master branch of Gemini Python (``latest``)
+     is compatible with the recent package versions in Astroconda, subject to
+     further testing. There are also some existing ``dev`` package builds from
+     an astroconda-fixes branch, but you cannot install ``internal`` et al.
 
 See also :ref:`manual_packages`.
 
 .. [#f1] https://github.com/conda/conda/issues/323#issuecomment-273243809
 
-.. [#f_dev_only] Currently just for ``dev`` (which uses the ``QAP-2016-2_ac``
-                 branch), until we have a proper AstroConda-compatible
-                 version of Gemini Python.
+.. [#f_dev_only] Currently just for ``dev``, until the stable branch of Gemini
+                 Python 2.0 includes compatibility fixes from master.
 
