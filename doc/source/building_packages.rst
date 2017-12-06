@@ -378,14 +378,6 @@ status/logs of each job.
    daily internal package builds from GS, falling back to the above interactive
    instructions when something needs changing.
 
-.. warning::
-
-   For tags other than ``dev``, the build matrix currently packages
-   gemini_python & gemaux versions that are not fully compatible with
-   Astroconda, pending updates to their stable branches. In the meantime, you
-   may prefer to build only ``iraf.gemini``, interactively (or omit the Python
-   packages from your subsequent install).
-
 * First-time build control setup (from Ureka):
 
   Sorry this is currently a bit arcane and may need maintenance to continue

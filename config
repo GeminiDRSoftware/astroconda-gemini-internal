@@ -2,7 +2,8 @@
 
 CVSROOT=":pserver:rtfuser@polaris.hi.gemini.edu:/usr/software/dev/cvsroot/girafcvsroot"
 SVNROOT="http://chara.hi.gemini.edu/svn/DRSoftware"
-GITROOT="git@gitlab.gemini.edu:/DRSoftware"
+GITLAB="git@gitlab.gemini.edu:/DRSoftware"
+GITHUB="https://github.com/GeminiDRSoftware"
 WIKIPAGE="http://gdpsg.wikis-internal.gemini.edu/index.php/OPS-ServerConfigurationManagement"
 GITVERS="ops_versions.txt"
 

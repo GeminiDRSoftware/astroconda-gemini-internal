@@ -8,6 +8,7 @@ deps="git"
 
 # Parse script arguments:
 status=1
+repo=GITLAB  # historical default (refers to variable name in ./config)
 unset clean pkgname tag
 while [ -n "$1" ]; do
     case "$1" in
@@ -18,6 +19,21 @@ while [ -n "$1" ]; do
             ;;
         --clean)
             clean=1
+            ;;
+        --repo)
+            shift
+            case "$1" in
+                github)
+                    repo=GITHUB
+                    ;;
+                gitlab)
+                    repo=GITLAB
+                    ;;
+                *)
+                    status=1
+                    break
+                    ;;
+            esac
             ;;
         -*)
             status=1
@@ -38,7 +54,8 @@ while [ -n "$1" ]; do
 done
 
 if [ -z "$pkgname" -o $status != 0 ]; then
-    echo "Usage: `basename $0` [--clean] package [tag]" >&2
+    echo "Usage: `basename $0` [--clean] [--repo gitlab|github] package [tag]"\
+         >&2
     exit $status
 fi
 
@@ -48,7 +65,8 @@ fi
 # Generate & change to temporary working directory:
 work_in_tmp_dir "$pkgname"
 
-# Determine package repository URL from its name:
+# Determine package repository URL from the specified name & repo alias:
+eval GITROOT=\$$repo
 url="${GITROOT}/${pkgname}.git"
 
 # Attempt check out (do we need the 3 re-tries before giving up, as for SVN?).

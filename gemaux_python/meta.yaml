@@ -21,7 +21,7 @@ requirements:
     build:
     - python
     - astropy >=1.0.1
-    - gemini_python =={{ version }}  # require same tag & checkout day?
+    - dragons =={{ version }}        # require same tag & checkout day?
     - matplotlib >=1.4.2
     - numpy >=1.9.1
     - pyds9 >=1.8.1
@@ -31,11 +31,11 @@ requirements:
     - scikit-image >=0.10.1
     - stsci.numdisplay >=1.6
     # Several of these modules are only used in one or two scripts, but all
-    # except pyds9 are already indirect dependencies via gemini_python anyway.
+    # except pyds9 are already indirect dependencies via dragons anyway.
     run:
     - python
     - astropy >=1.0.1                # just cleanir.py
-    - gemini_python =={{ version }}  # require same tag & checkout day?
+    - dragons =={{ version }}        # require same tag & checkout day?
     - matplotlib >=1.4.2             # just cleanir.py
     - numpy >=1.9.1
     - pyds9 >=1.8.1                  # just gsfpos/goipos

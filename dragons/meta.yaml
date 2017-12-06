@@ -3,21 +3,21 @@
 about:
     home: http://www.gemini.edu/sciops/data-and-results/processing-software
     license: BSD
-    summary: The main Gemini Python package for processing data
+    summary: The main DRAGONS package for processing Gemini data
 build:
     binary_relocation: True
     number: '0'
     script: $PYTHON setup.py install
 package:
-    name: gemini_python
+    name: dragons
     version: {{ version }}
 source:
-    fn: gemini_python-{{ version }}.tar.gz
-    url: http://astroconda-source:4440/gemini_python-{{ version }}.tar.gz
+    fn: DRAGONS-{{ version }}.tar.gz
+    url: http://astroconda-source:4440/DRAGONS-{{ version }}.tar.gz
 requirements:
     # Most of the dependencies besides python are not actually needed to
-    # "build" gemini_python, but including them here ensures that they get
-    # built and therefore that the package is installable.
+    # "build" dragons, but including them here ensures that they get built
+    # and therefore that the package is installable.
     build:
     - python
     - astropy >=1.2.1
