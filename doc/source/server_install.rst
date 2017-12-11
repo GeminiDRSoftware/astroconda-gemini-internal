@@ -120,15 +120,17 @@ repeating fully maybe once a year (if our Anaconda version changes).
 
   .. code-block:: sh
 
-     conda create -n dev_20161214 gemini-base gemini=dev_20161214
+     conda create -n dev_20161214 gemini-base gemini=dev
 
-  The meta-package ``gemini-base`` pulls in specific versions of the packages
-  from ``anaconda``, ``iraf-all``, ``pyraf`` and ``stsci``, giving a
-  controlled, reproducible installation for testing and production use. This
-  differs from ":ref:`laptop_install`", which uses the latest packages on the
-  day of installation (depending also on the anaconda base version). These
-  base packages can be updated by editing their version numbers in
-  ``gemini-base/meta.yaml``, in this repository.
+  This uses the latest `dev` build of each package that is not individually
+  added to the above line with a different date suffix
+  (eg. `iraf.gemini=dev_20161201`). The meta-package ``gemini-base`` pulls in
+  specific versions of the packages from ``anaconda``, ``iraf-all``, ``pyraf``
+  and ``stsci``, giving a controlled, reproducible installation for testing
+  and production use. This differs from ":ref:`laptop_install`", which uses
+  the latest packages on the day of installation (depending also on the
+  anaconda base version). These base packages can be updated by editing their
+  version numbers in ``gemini-base/meta.yaml``, in this repository.
 
   Although ``gemini-base`` should theoretically allow running the same set of
   packages with different Anaconda base versions, it is best to use the version
