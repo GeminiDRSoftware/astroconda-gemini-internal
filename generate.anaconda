@@ -1,0 +1,199 @@
+#!/bin/env python
+
+# Generate gemini-anaconda/meta.yaml from upstream anaconda package builds for
+# Python 2 & 3, giving us a meta-package that we can tweak as necessary, eg.
+# to update AstroPy.
+
+import os
+import re
+from glob import glob
+import ruamel_yaml as yaml
+
+#from conda_build.render import output_yaml
+
+path = '/astro/iraf/linux-64/anaconda3_5.1.0'
+#path = '/rtfproc/anaconda2_4.2.0'
+name = 'anaconda'
+
+# Path to new recipe:
+yaml_path = 'gemini-anaconda'
+
+# Define conda pkg directory conventions, inc. a RE to match version, py &
+# build numbers:
+pkgs_dir = os.path.join(path, 'pkgs')
+fn_comp = re.compile(name + '-([0-9.abdevrcpost]*)-(?:np[0-9]*)?(py[0-9]{2})[h0-9a-f]*_([0-9]*)')
+
+# Glob for directories matching this package name in pkgs/:
+patt = os.path.join(pkgs_dir, name + '-[0-9]*', '')
+pkgdirs = glob(patt)
+
+versions = {}
+
+class MetaYamlCollector:
+
+    def __init__(self, path, subsecs):
+
+        self.path = path  # directory name
+        self.subsecs = subsecs
+        self.entries = {subsec : [] for subsec in self.subsecs}
+        self.template = None
+
+        # If the output already exists, include it and use it as the template,
+        # otherwise use whatever upstream yaml we're given first:
+        try:
+            self.add_yaml(self.path, None)
+        except IOError:
+            pass
+
+    def add_yaml(self, dirname, pytag):
+
+        # pytag=None signifies that we're preserving existing comments from the
+        # meta.yaml file, rather than specifying selector comments to match an
+        # upstream package build.
+
+        # Read the file to ingest deps from. The first one becomes the template.
+        filename = os.path.join(dirname, 'meta.yaml')
+        with open(filename, 'r') as yaml_file:
+            meta_yaml = yaml.load(yaml_file, yaml.RoundTripLoader)
+
+        if not self.template:
+            self.template = meta_yaml
+
+        # Get platform from conda_build_config.yaml and construct selector
+        # comment for conda-build (unless processing output dir, which should
+        # already have them):
+        if pytag is not None:
+            filename = os.path.join(dirname, 'conda_build_config.yaml')
+            with open(filename, 'r') as conf_file:
+                conda_conf = yaml.safe_load(conf_file)
+            platform = conda_conf['target_platform'].split('-')
+            if platform[0] in ('linux', 'win'):
+                platform = ''.join(platform)
+            elif platform[0] in ('osx',):
+                platform = platform[0]
+            else:
+                raise('Unsupported platform {0}'.format(platform[0]))
+            comment = '[{0} and {1}]'.format(pytag, platform)
+
+        # Consolidate requirements into the list:
+        for subsec in self.subsecs:
+
+            reqs = meta_yaml['requirements'][subsec]
+            treqs = self.template['requirements'][subsec]
+
+            # Store dependency requirement & selector comment pairs. We have
+            # to concatenate & sort these a convoluted way because
+            # CommentedSeq.sort() only sorts its values & not comments, duh.
+            for n, req in enumerate(reqs):
+
+                # # Strip out the build number because it is OS dependent and
+                # # we mainly want to fix the versions:
+                # spec = str(req).split()[:2]
+                # if len(spec) > 1 and not re.search('[=<>|*,!]', spec[1]):
+                #     spec[1] = '==' + spec[1]
+                # req = ' '.join(spec)
+
+                # Re-use any existing comments, if not specified. This is the
+                # obscure way in which one apparently has to access comments
+                # with ruamel, as of writing.
+                if pytag is None:
+                    try:
+                        comment = reqs.ca.items[n][0].value
+                    except KeyError:
+                        raise ValueError(
+                            'missing selector comment for {0}'.format(req)
+                        )
+
+                # Record the dependency value & comment entries:
+                self.entries[subsec].append((req, comment))
+
+            # This is just a means of adjusting CommentedSeq to the right size
+            # so the list elements can be copied back into it after sorting
+            # them separately:
+            if meta_yaml is not self.template:
+                treqs.extend(reqs)
+
+    def sort_and_comment(self):
+
+        # Now replace the CommentedSeq values with the sorted requirements &
+        # their comments:
+        for subsec in self.subsecs:
+            treqs = self.template['requirements'][subsec]
+            self.entries[subsec].sort()
+            for n, (req, comment) in enumerate(self.entries[subsec]):
+                treqs[n] = req
+                treqs.yaml_add_eol_comment(comment, n)
+
+    def customize(self):
+
+        # Other edits WRT template version from anaconda:
+
+        template = self.template
+
+        template['package']['name'] = 'gemini-' + name
+        template['build']['number'] = '0'
+        try:
+            del template['source']
+            del template['about']['license_file']
+            del template['build']['string']
+            del template['extra']
+        except KeyError:
+            pass
+
+        # Delete the build section to avoid installing everything at build time
+        # if we don't want to (in which case 'build' can be removed from
+        # subsecs above). It doesn't take a lot longer to install the deps. if
+        # they're already downloaded though, and it makes sure that the built
+        # package actually can be installed.
+        # del template['requirements']['build']
+
+    def save(self):
+
+        self.sort_and_comment()
+
+        self.customize()
+
+        filename = os.path.join(self.path, 'meta.yaml')
+        with open(filename, 'w') as outfile:
+            yaml.dump(self.template, outfile, Dumper=yaml.RoundTripDumper,
+                      default_flow_style=False)
+        # output_yaml(template, outfile)
+
+# Initialize the collection, starting with any existing version of output file:
+collection = MetaYamlCollector(yaml_path, ('build', 'run'))
+
+# Determine version & build numbers for each directory corresponding to package
+# "name", sorted by Python version:
+for pkgdir in pkgdirs:
+
+    filename = os.path.split(os.path.split(pkgdir)[0])[1]
+    match = fn_comp.match(filename)
+
+    if match is not None:
+        ver, pyver, build = match.groups()
+        if pyver in versions:
+            versions[pyver].append((ver, build, filename))
+        else:
+            versions[pyver] = [(ver, build, filename)]
+
+# Use the builds for the latest Python 2 & 3. Should maybe be selectable but
+# will do for now.
+py2 = (sorted([key for key in versions if key.startswith('py2')]) or [None]).pop()
+py3 = (sorted([key for key in versions if key.startswith('py3')]) or [None]).pop()
+
+# Loop over major Python versions:
+for selector, pyver in zip(('py2k', 'py3k'), (py2, py3)):
+
+    # Process the upstream meta.yaml for each major Python version found:
+    if pyver:
+
+        # Get package directory:
+        pkgdir = sorted(versions[pyver])[-1][-1]  # subdir name
+        path = os.path.join(pkgs_dir, pkgdir, 'info', 'recipe')
+
+        # Accumulate the deps from this package:
+        collection.add_yaml(path, selector)
+
+# Save the resulting meta.yaml:
+collection.save()
+
