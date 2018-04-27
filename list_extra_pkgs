@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+
+# List packages in a named conda env that aren't from the anaconda package
+# (or gemini-anaconda), in a format suitable for pasting into meta.yaml.
+
+import os
+import argparse
+
+from conda.base.context import context
+from conda.core.linked_data import linked
+from conda.core.repodata import SubdirData
+from conda.models.match_spec import MatchSpec
+
+
+parser = argparse.ArgumentParser(
+    description='List packages in an env that aren\'t from the anaconda pkg'
+)
+parser.add_argument('env_name', metavar='env_name', type=str,
+                    help='Name of an env in the active anaconda installation')
+
+args = parser.parse_args()
+
+
+# Configure conda "context" (channels etc.):
+context.__init__(argparse_args={'name' : args.env_name})
+prefix = context.target_prefix
+
+if not os.path.isdir(prefix):
+    raise IOError('No env {0}'.format(args.env_name))
+
+# Get installed packages:
+pkg_list = linked(prefix)
+pkg_dict = {pkg.name : (pkg.version, pkg.build) for pkg in pkg_list}
+
+# Determine installed anaconda package from which to exclude dependencies:
+if 'anaconda' in pkg_dict:
+    version, build = pkg_dict['anaconda']
+    anaconda_query = 'anaconda=={0}={1}'.format(version, build)
+elif 'gemini-anaconda' in pkg_dict:
+    version, build = pkg_dict['gemini-anaconda']
+    anaconda_query = 'gemini-anaconda=={0}={1}'.format(version, build)
+else:
+    raise ValueError('no anaconda pkg installed in {0}'.format(args.env_name))
+
+# Do the "conda info anaconda" look-up:
+spec = MatchSpec(anaconda_query)
+results = SubdirData.query_all(context.channels, context.subdirs, spec)
+
+# Organize anaconda deps by name:
+if len(results) == 1:
+    anaconda_deps = {}
+    for dep in results[0].depends:
+        parts = dep.split()
+        anaconda_deps[parts[0]] = parts[1:]
+else:  # this should never happen...
+    raise ValueError('Got {0} matches for {1}'.format(len(results),
+                                                      anaconda_query))
+
+# List installed packages not in anaconda:
+for pkg in sorted(pkg_dict):
+    if pkg not in anaconda_deps:
+        version, build = pkg_dict[pkg]
+        print('    - {0} =={1}'.format(pkg, version))
+
