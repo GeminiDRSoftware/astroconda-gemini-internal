@@ -7,8 +7,8 @@ import os
 import argparse
 
 from conda.base.context import context
-from conda.core.linked_data import linked
-from conda.core.repodata import SubdirData
+from conda.core.prefix_data import linked
+from conda.core.subdir_data import SubdirData
 from conda.models.match_spec import MatchSpec
 
 
@@ -44,7 +44,7 @@ else:
 
 # Do the "conda info anaconda" look-up:
 spec = MatchSpec(anaconda_query)
-results = SubdirData.query_all(context.channels, context.subdirs, spec)
+results = SubdirData.query_all(spec, context.channels, context.subdirs)
 
 # Organize anaconda deps by name:
 if len(results) == 1:
