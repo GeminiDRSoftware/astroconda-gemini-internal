@@ -3,7 +3,14 @@
 # (essentially determines the right path for the OS & sources "activate").
 
 basepath="/astro/iraf"
-acdir="anaconda2_${ACVER}"
+
+# Allow ACVER to be either a version string (eg. 5.2.0) or a space-separated
+# Python version plus Anaconda version string (eg. "3 5.2.0"):
+if [ $(echo "$ACVER" | wc -w) -gt 1 ]; then
+    acdir="anaconda$(echo ${ACVER} | tr ' ' '_')"
+else
+    acdir="anaconda2_${ACVER}"  # still assume Python 2 by default for now
+fi
 
 # Default to "internal" env version unless otherwise specified. This value can
 # either be dev/internal/gnops/gsops (in which case the dated env to be used is
