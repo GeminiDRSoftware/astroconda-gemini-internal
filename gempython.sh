@@ -74,12 +74,12 @@ if [ $status -eq 0 ]; then
     fi
 
     # Activate the target environment, if it exists:
-    if [ $status -eq 0 -a -r "$envpath/bin/activate" ]; then
+    if [ $status -eq 0 -a -r "$envpath/bin" ]; then
 
-        # Sourcing activate from the environment itself allows different
+        # Sourcing activate relative to the environment allows different
         # dev/internal/gnops/gsops links to point to different base anaconda
         # installations, where needed (transitionally):
-        . "${envpath}/bin/activate" "$envname"
+        . "${envpath}/../../bin/activate" "$envname" || status=1
 
         # This would likely break the installation if set (the same can be true
         # of PYTHONPATH if it contains standard dependencies, but we leave that
