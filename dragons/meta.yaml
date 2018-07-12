@@ -21,6 +21,7 @@ requirements:
     build:
     - python
     - astropy >=1.2.1
+    - cython >=0.24.1
     - future >=0.16.0
     - matplotlib >=1.4.2
     - numpy >=1.9.1
