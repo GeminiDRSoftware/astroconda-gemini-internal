@@ -17,7 +17,7 @@ build:
     number: '0'
 package:
     name: gemini-base
-    version: 2.0
+    version: 2.1
 requirements:
     # There are no build requirements since we don't maintain the packages
     # (and if we were to, it wouldn't be via this particular meta-package).
@@ -122,6 +122,7 @@ requirements:
     - specutils ==0.2.2
     - specviz ==0.5.0
     - spherical-geometry ==1.2.2
+    - sphinx_rtd_theme >=0.3.0
     - stginga ==0.3
     - stistools ==1.1
     # - stsci ==3.0.2  # this package effectively replaces these meta-pkgs

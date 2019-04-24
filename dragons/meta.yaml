@@ -21,6 +21,7 @@ requirements:
     build:
     - python
     - astropy >=1.2.1
+    - astroquery >=0.3.5
     - cython >=0.24.1
     - future >=0.16.0
     - matplotlib >=1.4.2
@@ -32,6 +33,7 @@ requirements:
     - scipy >=0.15.1
     - scikit-image >=0.10.1
     - sphinx >=1.2.2
+    - sphinx_rtd_theme >=0.3.0
     - sqlalchemy >=1.0
     - stsci.numdisplay >=1.6
     - fitsverify >=4.17
@@ -39,6 +41,7 @@ requirements:
     run:
     - python
     - astropy >=1.2.1
+    - astroquery >=0.3.5
     - future >=0.16.0
     - matplotlib >=1.4.2
     - numpy >=1.9.1
@@ -48,7 +51,6 @@ requirements:
     - requests >=2.11.1
     - scipy >=0.15.1
     - scikit-image >=0.10.1
-    - sphinx >=1.2.2
     - sqlalchemy >=1.0
     - stsci.numdisplay >=1.6
     - fitsverify >=4.17
