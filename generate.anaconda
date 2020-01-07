@@ -25,6 +25,9 @@ parser = argparse.ArgumentParser(
 parser.add_argument('path', metavar='path_to_anaconda', type=str,
                     help='Path to anaconda installation with upstream pkgs')
 
+parser.add_argument('--py3', metavar='py3_version', type=str,
+                    help='Version of Python 3 to target')
+
 args = parser.parse_args()
 
 pkgs_dir = os.path.join(args.path, 'pkgs')
@@ -143,10 +146,20 @@ class MetaYamlCollector:
 
         template['package']['name'] = 'gemini-' + name
         template['build']['number'] = '0'
+        # (It seems a bit fiddly to move these into a loop over keys:)
         try:
             del template['source']
+        except KeyError:
+            pass
+        try:
             del template['about']['license_file']
+        except KeyError:
+            pass
+        try:
             del template['build']['string']
+        except KeyError:
+            pass
+        try:
             del template['extra']
         except KeyError:
             pass
@@ -190,7 +203,12 @@ for pkgdir in pkgdirs:
 # Use the builds for the latest Python 2 & 3. Should maybe be selectable but
 # will do for now.
 py2 = (sorted([key for key in versions if key.startswith('py2')]) or [None]).pop()
-py3 = (sorted([key for key in versions if key.startswith('py3')]) or [None]).pop()
+if args.py3 is None:
+    py3 = (sorted([key for key in versions if key.startswith('py3')]) or [None]).pop()
+else:
+    py3 = args.py3.replace('.', '')
+    if py3 not in versions:
+        raise ValueError('py3 must be one of {}'.format(tuple(versions.keys())))
 
 # Loop over major Python versions:
 for selector, pyver in zip(('py2k', 'py3k'), (py2, py3)):
