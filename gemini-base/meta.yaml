@@ -10,14 +10,14 @@
 # - Using OS-specific "builds" allows for unavailability of particular packages
 #   on a certain OS or Python version.
 
-about:
-    license: BSD
-    summary: Base AstroConda installation for internal use at Gemini
 build:
     number: '0'
 package:
     name: gemini-base
-    version: 2.2
+    version: 3.0
+about:
+    license: BSD
+    summary: Base AstroConda installation for internal use at Gemini
 requirements:
     # There are no build requirements since we don't maintain the packages
     # (and if we were to, it wouldn't be via this particular meta-package).
@@ -25,7 +25,7 @@ requirements:
     - python  # needs to be in the recipe for Python-specific builds
     run:
     - python
-    - gemini-anaconda ==5.2.0.g0
+    - gemini-anaconda ==2019.10.g0
     # -----
     - iraf ==2.16.UR    # [py2k]
     - iraf ==2.16.UR.1  # [py3k]
@@ -57,98 +57,138 @@ requirements:
     - iraf.xdimsum ==2010_11_18
     - iraf.xray ==2.5.y2k
     # -----
-    - pyraf ==2.1.11.JT
+    - pyraf ==2.1.15
     - pyraf.kepler ==2.6.3  # [py2k]
     # -----
-    - acstools ==2.0.10
+    - acstools ==2.1.0  # [py2k]
+    - acstools ==3.0.0  # [py3k]
     - asdf ==1.3.3  # [py2k]
-    - asdf ==2.0.1  # [py3k]
-    - asteval ==0.9.11
-    - astroimtools ==0.1.1
+    - asdf ==2.4.2  # [py3k]
+    - asteval ==0.9.13
+    - astroimtools ==0.1.1  # [py2k]
+    - astroimtools ==0.2  # [py3k]
+    - astroquery ==0.3.9  # [py2k]
+    - astroquery ==0.3.10  # [py3k]
     - atlas-generic ==3.10.2  # [linux]
-    - calcos ==3.3.4
-    - cfitsio ==3.440
-    - costools ==1.2.1
-    - crds ==7.2.2
-    - cubeviz ==0.0.2
-    - d2to1 ==0.2.12
-    - dbus-glib ==0.108  # [linux]
-    - dbus-python ==1.2.4  # [linux]
-    - dill ==0.2.7.1
-    - docopt ==0.6.2
-    - drizzlepac ==2.2.3
-    - ds9 ==7.1
-    - fftw ==3.3.4
-    - fitsblender ==0.3.2
+    - calcos ==3.3.5  # [py2k]
+    - calcos ==3.3.7  # [py3k]
+    - cfitsio ==3.470
+    - costools ==1.2.3
+    - crds ==7.2.4  # [py2k]
+    - crds ==7.4.1.3  # [py3k]
+    - cubeviz ==0.2.1  # [py2k]
+    - cubeviz ==0.3.0  # [py3k]
+    - d2to1 ==0.2.12.post1
+    - da5-notebooks ==1.0  # [py3k]
+    - dbus-glib ==0.108  # [py2k and linux]
+    - dbus-python ==1.2.4  # [py2k and linux]
+    - dill ==0.3.1.1
+    - docopt ==0.6.2  # [py2k]
+    - drizzlepac ==2.2.6  # [py2k]
+    - drizzlepac ==3.1.3  # [py3k]
+    - ds9 ==8.0.1
+    - fast-histogram ==0.7
+    - fftw ==3.3.8
+    - fitsblender ==0.3.5  # [py2k]
+    - fitsblender ==0.3.6  # [py3k]
     - fitsverify ==4.18
-    - future ==0.16.0  # [py2k]
-    - ginga ==2.7.0
-    - glue-core ==0.12.0
-    - glue-ginga ==0.2
-    - glue-vispy-viewers ==0.9
-    - glueviz ==0.12.0
+    - future ==0.18.2  # [py3k]
+    - ginga ==2.7.2  # [py2k]
+    - ginga ==3.0.1  # [py3k]
+    - glue-core ==0.15.6
+    - glue-vispy-viewers ==0.12.2  # [py2k]
+    - glueviz ==0.15.2  # [py2k]
     - gwcs ==0.8.0  # [py2k]
-    - gwcs ==0.9.1  # [py3k]
-    - hstcal ==2.0.0
+    - gwcs ==0.11.0  # [py3k]
+    - hstcal ==2.3.1
     - htc_utils ==0.1.0
-    - imexam ==0.8.0
-    - keyring ==12.2.1
+    - hypothesis ==4.54.2  # [py2k]
+    - imexam ==0.8.1
+    - jwxml ==0.3.0  # [py3k]
+    - keyring ==18.0.0  # [py2k and linux]
+    - libgcc ==7.2.0  # [linux]
     - libgcc ==4.8.5  # [osx]
-    - lockfile ==0.12.2
+    - lockfile ==0.12.2  # [py3k]
     - mdp ==3.5  # [py2k]
-    - mosviz ==0.1.1
-    - nictools ==1.1.3
+    - mosviz ==0.1.1  # [py2k]
+    - mosviz ==0.3.0  # [py3k]
+    - mpl-scatter-density ==0.6
+    - nictools ==1.1.4  # [py2k]
+    - nictools ==1.1.5  # [py3k]
     - parsley ==1.3
-    - photutils ==0.4
-    - pkg-config ==0.29.2
-    - pkgconfig ==1.3.1
-    - plotly ==2.7.0
-    - purge_path ==1.2.0
-    - py-expression-eval ==0.3.4
-    - pyds9 ==1.9.0.dev61+g3761d7a
+    - photutils ==0.4.1  # [py2k]
+    - photutils ==0.7.2  # [py3k]
+    - plotly ==4.4.1
+    - py-expression-eval ==0.3.4  # [py2k]
+    - poppy ==0.9.0  # [py3k]
+    - pyds9 ==1.9.0.dev145+gc1bf67a
     - pyfftw ==0.9.2
     - pyobjc-core ==3.1.1  # [osx]
     - pyobjc-framework-cocoa ==3.1.1  # [osx]
     - pyobjc-framework-quartz ==3.1.1  # [osx]
-    - pyopengl ==3.1.1a1
+    - pyopengl ==3.1.1a1  # [py2k]
+    - pyopengl ==3.1.3b1  # [py3k]
     - pyqtgraph ==0.10.0
-    - pyregion ==2.0
-    - pysynphot ==0.9.12
+    - pysiaf ==0.6.3  # [py3k]
+    - pysynphot ==0.9.12  # [py2k]
+    - pysynphot ==0.9.14  # [py3k]
+    - pytest-arraydiff ==0.3  # [py2k]
+    - pytest-astropy ==0.7.0  # [py2k]
+    - pytest-astropy-header ==0.1.1  # [py2k]
+    - pytest-doctestplus ==0.5.0  # [py2k]
+    - pytest-openfiles ==0.4.0  # [py2k]
+    - pytest-remotedata ==0.3.2  # [py2k]
     - radio-beam ==0.2
-    - reftools ==1.7.4
-    - secretstorage ==2.3.1  # [linux]
+    - reftools ==1.7.4  # [py2k]
+    - reftools ==1.7.5  # [py3k]
+    - retrying ==1.3.3
+    - secretstorage ==2.3.1  # [py2k and linux]
     - semantic_version ==2.6.0
-    - spectral-cube ==0.4.1
-    - specutils ==0.2.2
-    - specviz ==0.5.0
-    - spherical-geometry ==1.2.2
-    - sphinx_rtd_theme ==0.4.3
-    - stginga ==0.3
-    - stistools ==1.1
-    # - stsci ==3.0.2  # this package effectively replaces these meta-pkgs
-    # - stsci-data-analysis ==2.1.1
-    # - stsci-hst ==3.0.2
+    - setuptools_scm ==3.3.3  # [py3k]
+    - sextractor ==2.19.5
+    - spectral-cube ==0.4.3
+    - specutils ==0.2.2  # [py2k]
+    - specutils ==0.6  # [py3k]
+    - specviz ==0.5.0  # [py2k]
+    - specviz ==0.7.0  # [py3k]
+    - spherical-geometry ==1.2.10  # [py2k]
+    - spherical-geometry ==1.2.18  # [py3k]
+    - stginga ==0.3  # [py2k]
+    - stginga ==1.0  # [py3k]
+    - stistools ==1.3.0
+    - stregion ==1.1.4  # [py2k]
+    - stregion ==1.1.6  # [py3k]
+    # These 3 meta-packages are redundant, but keep them by default just so
+    # that it's easier to see which versions we're using:
+    - stsci ==3.1.0  # [py2k]
+    - stsci ==3.2.0  # [py3k]
+    - stsci-data-analysis ==2.2.0  # [py2k]
+    - stsci-data-analysis ==3.0.0  # [py3k]
+    - stsci-hst ==3.1.1
     - stsci.convolve ==2.2.2
     - stsci.distutils ==0.3.8
-    - stsci.image ==2.3.0
-    - stsci.imagemanip ==1.1.2
-    - stsci.imagestats ==1.4.2
+    - stsci.image ==2.3.1  # [py2k]
+    - stsci.image ==2.3.3  # [py3k]
+    - stsci.imagemanip ==1.1.4
+    - stsci.imagestats ==1.4.3  # [py2k]
+    - stsci.imagestats ==1.6.2  # [py3k]
     - stsci.ndimage ==0.10.1
-    - stsci.numdisplay ==1.6.1
-    - stsci.skypac ==0.9.12
-    - stsci.sphere ==0.2
-    - stsci.sphinxext ==1.2.2
-    - stsci.stimage ==0.2.2
-    - stsci.tools ==3.4.12
+    - stsci.skypac ==0.9.15  # [py2k]
+    - stsci.skypac ==1.0.4  # [py3k]
+    - stsci.stimage ==0.2.2  # [py2k]
+    - stsci.stimage ==0.2.4  # [py3k]
+    - stsci.tools ==3.6.0
     - stwcs ==1.3.2  # [py2k]
-    - stwcs ==1.4.0  # [py3k]
+    - stwcs ==1.5.3  # [py3k]
+    - tweakwcs ==0.5.3  # [py3k]
     - wcstools ==3.9.5
-    - wfc3tools ==1.3.4
-    - wfpc2tools ==1.0.3
+    - webbpsf ==0.9.0  # [py3k]
+    - webbpsf-data ==0.9.0  # [py3k]
+    - wfc3tools ==1.3.5
+    - wfpc2tools ==1.0.4
     # -----
-    - sextractor ==2.19.5
-    - ephem ==3.7.6.0
-    - astroquery ==0.3.7
+    - ephem ==3.7.7.0
+    - sphinx_rtd_theme ==0.4.3
     # -----
     # Omitting the "gemini" version allows that to be updated independently
     # and this meta-package to be re-used for different operational tags;
