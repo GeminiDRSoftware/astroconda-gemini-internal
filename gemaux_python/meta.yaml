@@ -1,27 +1,25 @@
-{% set version = tag + '_' + DATE %}
-
-about:
-    home: http://www.gemini.edu/sciops/data-and-results/processing-software
-    license: BSD
-    summary: The "gemaux" Python package, for internal Gemini operations
 build:
     binary_relocation: True
     number: '0'
     script: $PYTHON setup.py install
 package:
     name: gemaux_python
-    version: {{ version }}
+    version: "2.1.1"
 source:
-    fn: gemaux_python-{{ version }}.tar.gz
-    url: http://astroconda-source:4440/gemaux_python-{{ version }}.tar.gz
+    git_url: git@gitlab.gemini.edu:DRSoftware/gemaux_python.git
+    git_tag: v2.1.1
+about:
+    home: http://www.gemini.edu/sciops/data-and-results/processing-software
+    license: BSD
+    summary: The "gemaux" Python package, for internal Gemini operations
 requirements:
     # Most of the dependencies besides python are not actually needed to
     # "build" gemaux_python, but including them here ensures that they get
     # built and therefore that the package is installable.
     build:
     - python
-    - astropy >=1.0.1
-    - dragons =={{ version }}        # require same tag & checkout day?
+    - astropy >=2
+    - dragons >=2.1.1
     - matplotlib >=1.4.2
     - numpy >=1.9.1
     - pyds9 >=1.8.1
@@ -29,13 +27,12 @@ requirements:
     - python-dateutil >=2.5.3
     - scipy >=0.15.1
     - scikit-image >=0.10.1
-    - stsci.numdisplay >=1.6
     # Several of these modules are only used in one or two scripts, but all
     # except pyds9 are already indirect dependencies via dragons anyway.
     run:
     - python
-    - astropy >=1.0.1                # just cleanir.py
-    - dragons =={{ version }}        # require same tag & checkout day?
+    - astropy >=2                    # just cleanir.py
+    - dragons >=2.1.1
     - matplotlib >=1.4.2             # just cleanir.py
     - numpy >=1.9.1
     - pyds9 >=1.8.1                  # just gsfpos/goipos
@@ -43,5 +40,3 @@ requirements:
     - python-dateutil >=2.5.3        
     - scipy >=0.15.1                 # just cleanir.py & create_illum_mask.py
     - scikit-image >=0.10.1          # just create_illum_mask.py
-    - stsci.numdisplay >=1.6
-
