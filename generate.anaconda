@@ -136,7 +136,7 @@ class MetaYamlCollector:
             self.entries[subsec].sort()
             for n, (req, comment) in enumerate(self.entries[subsec]):
                 treqs[n] = req
-                treqs.yaml_add_eol_comment(comment, n)
+                treqs.yaml_add_eol_comment(comment, n, column=56)
 
     def customize(self):
 
@@ -211,7 +211,8 @@ else:
         raise ValueError('py3 must be one of {}'.format(tuple(versions.keys())))
 
 # Loop over major Python versions:
-for selector, pyver in zip(('py2k', 'py3k'), (py2, py3)):
+# # for selector, pyver in zip(('py2k', 'py3k'), (py2, py3)):
+for selector, pyver in zip(('py3k',), (py3,)):
 
     # Process the upstream meta.yaml for each major Python version found:
     if pyver:
