@@ -4,10 +4,10 @@ build:
     script: $PYTHON setup.py install
 package:
     name: gemaux_python
-    version: "2.1.1"
+    version: "3.0.0.dev"
 source:
     git_url: git@gitlab.gemini.edu:DRSoftware/gemaux_python.git
-    git_tag: v2.1.1
+    git_tag: v3.0.0-dev
 about:
     home: http://www.gemini.edu/sciops/data-and-results/processing-software
     license: BSD
@@ -18,25 +18,31 @@ requirements:
     # built and therefore that the package is installable.
     build:
     - python
-    - astropy >=2
-    - dragons >=2.1.1
+    - astropy >=4
+    - dragons >=3.0.0.dev
+    - flask >=1.1                    # just fire
     - matplotlib >=1.4.2
-    - numpy >=1.9.1
+    - numpy >=1.19                   # earlier vers prob. OK but not re-tested
     - pyds9 >=1.8.1
-    - pyraf >=2.1.6
+    # - pyraf >=2.1.6
     - python-dateutil >=2.5.3
-    - scipy >=0.15.1
+    - requests >=2.23                # just archive_access & fire
+    # - rx >=3.1                     # just fire; but not in Anaconda repos!
+    - scipy >=1.3
     - scikit-image >=0.10.1
     # Several of these modules are only used in one or two scripts, but all
     # except pyds9 are already indirect dependencies via dragons anyway.
     run:
     - python
-    - astropy >=2                    # just cleanir.py
-    - dragons >=2.1.1
+    - astropy >=4
+    - dragons >=3.0.0.dev
+    - flask >=1.1                    # just fire
     - matplotlib >=1.4.2             # just cleanir.py
-    - numpy >=1.9.1
+    - numpy >=1.19                   # earlier vers prob. OK but not re-tested
     - pyds9 >=1.8.1                  # just gsfpos/goipos
-    - pyraf >=2.1.6                  # just cleanir.py
-    - python-dateutil >=2.5.3        
-    - scipy >=0.15.1                 # just cleanir.py & create_illum_mask.py
+    # - pyraf >=2.1.6                # just cleanir.py; avoid IRAF dep on Py 3
+    - python-dateutil >=2.5.3
+    - requests >=2.23                # just archive_access & fire
+    # - rx >=3.1                     # just fire; but not in Anaconda repos!
+    - scipy >=1.3
     - scikit-image >=0.10.1          # just create_illum_mask.py
