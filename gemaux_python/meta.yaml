@@ -4,10 +4,10 @@ build:
     script: $PYTHON setup.py install
 package:
     name: gemaux_python
-    version: "3.0.0"
+    version: "3.0.2"
 source:
     git_url: git@gitlab.gemini.edu:DRSoftware/gemaux_python.git
-    git_tag: v3.0.0
+    git_tag: v3.0.2
 about:
     home: http://www.gemini.edu/sciops/data-and-results/processing-software
     license: BSD
@@ -30,6 +30,7 @@ requirements:
     # - rx >=3.1                     # old fire to be removed; not in Anaconda
     - scipy >=1.3
     - scikit-image >=0.10.1
+    - urllib3
     # Several of these modules are only used in one or two scripts, but all
     # except pyds9 are already indirect dependencies via dragons anyway.
     run:
@@ -46,3 +47,4 @@ requirements:
     # - rx >=3.1                     # old fire to be removed; not in Anaconda
     - scipy >=1.3
     - scikit-image >=0.10.1          # just create_illum_mask.py
+    - urllib3
