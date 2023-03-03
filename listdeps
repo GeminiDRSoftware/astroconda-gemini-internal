@@ -1,0 +1,132 @@
+#!/bin/env python3
+#
+# Activate the run-time conda environment before running this in the source
+# checkout for the appropriate branch, so the script can classify dependencies
+# according to whether they're in the standard library and/or found in the env.
+
+import os
+import re
+import sysconfig
+
+from importlib import import_module
+from pathlib import Path
+
+pkglist = set()
+
+cwd = os.getcwd()
+
+# Grep for imported package names and save them in categorized sets:
+for root, dirs, files in os.walk(cwd, topdown=True):
+
+    # Ignore old copies in build/ & "old_xxx" subdirectories that aren't used:
+    for d in list(dirs):
+        if (root == cwd and d == 'build') or d.lower().startswith('old_'):
+            dirs.remove(d)
+
+    for file in files:
+    
+        if file.lower().endswith('.py'):
+        
+            with open(os.path.join(root, file)) as pyfile:
+
+                for line in pyfile:
+
+                    # Ignore whole-line comments but not doc strings, which are
+                    # less trivial to parse with a regex, except for lines
+                    # beginning with ">>>", which are easy-to-filter examples
+                    # in the docs:
+                    if not (re.match('^\s*[#]', line) or
+                            re.match('^\s*>>>', line)):
+
+                        # The first line of an import statement almost always
+                        # contains the word "import" and package name(s) (one
+                        # *could* write "from X" on one line and "import Y" on
+                        # the next, but that's not a style that really exists):
+                        mimp = re.match('(\s*from\s+[\w.]+\s)?\s*import\s+',
+                                        line)
+
+                        if mimp:
+
+                            # Strip anything after a hash, since an import
+                            # should not contain quoted strings:
+                            comidx = line.find('#')
+                            if comidx >= 0:
+                                line = line[:comidx]
+
+                            # Extract a substring encompassing package name(s):
+                            # print(line, end='')
+                            mimp = re.search('(^|\s+)import\s+', line)
+                            mfrom = re.search('^\s*from\s+', line)
+                            if mfrom:
+                                istart = mfrom.end()
+                                iend = mimp.start()
+                            else:
+                                istart = mimp.end()
+                                iend = len(line)
+
+                            # Separate individual package specs:
+                            pkgstrs = line[istart:iend].strip('()\n').split(',')
+
+                            for pkgstr in pkgstrs:
+
+                                pkgstr = pkgstr.strip()
+
+                                # Remove any "as x" component:
+                                mas = re.search('\sas\s', pkgstr)
+                                if mas:
+                                    pkgstr = pkgstr[:mas.start()].strip()
+
+                                # Strip any subpackage names, since we only care
+                                # about the parent (ignoring any funny namespace
+                                # packages such as STScI's!):
+                                idot = pkgstr.find('.', 1)
+                                if idot > 0:
+                                    pkgstr = pkgstr[:idot]
+
+                                # Ignore relative imports from within the
+                                # package whose deps we're analyzing:
+                                if not pkgstr.startswith('.'):
+                                    pkglist.add(pkgstr)
+
+                                # print(f"  [{pkgstr}]")
+
+# Categorize modules as built in / std lib files (ignored) or external deps,
+# separating those not found in the test env, for manual checking:
+
+inst_paths = sysconfig.get_paths()
+stdlibdir = Path(inst_paths['stdlib'])
+sitepkgdir = Path(inst_paths['purelib'])
+
+found, not_found, std = [], [], []
+
+for pkg in sorted(pkglist):
+    try:
+        m = import_module(pkg)
+    except ImportError:
+        not_found.append(pkg)
+    else:
+        # Only consider non-builtin modules:
+        if hasattr(m, '__file__'):
+
+            # Include non-built-in namespace packages, to be safe (they are
+            # probably external deps, usually just a matplotlib one):
+            if m.__file__ is None:
+                found.append(pkg)
+            # Include modules with a known location if they're not part of the
+            # standard library:
+            else:
+                pkgfile = Path(m.__file__).resolve()
+                if (sitepkgdir in pkgfile.parents or
+                    stdlibdir not in pkgfile.parents):
+                        found.append(pkg)
+                else:
+                    std.append(pkg)
+            #print('EXT ', m.__file__)
+        #print(m, dir(m))
+
+for name, group in (('FOUND', found), ('NOT FOUND', not_found)):
+    print(f'{name}:\n')
+    for pkg in group:
+        print(pkg)
+    print()
+
