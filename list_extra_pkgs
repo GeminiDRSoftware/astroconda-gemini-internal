@@ -1,19 +1,24 @@
 #!/usr/bin/env python
 
-# List packages in a named conda env that aren't from the anaconda package
-# (or gemini-anaconda), in a format suitable for pasting into meta.yaml.
+# List non-Gemini packages in a named conda env, in a format suitable for
+# pasting into meta.yaml, to help construct gemini-base. This script previously
+# listed packages not in the anaconda meta-package, but there's no longer such
+# a thing with conda-forge, making this step more trivial.
 
 import os
 import argparse
+import re
 
 from conda.base.context import context
 from conda.exports import linked
-from conda.core.subdir_data import SubdirData
-from conda.models.match_spec import MatchSpec
+# from conda.core.subdir_data import SubdirData
+# from conda.models.match_spec import MatchSpec
 
+# Don't list packages beginning with the following names:
+exclude = re.compile('astrodata|dragons|gemaux|gemini|iraf.gemini$')
 
 parser = argparse.ArgumentParser(
-    description='List packages in an env that aren\'t from the anaconda pkg'
+    description='List the non-Gemini packages in an env for meta.yaml'
 )
 parser.add_argument('env_name', metavar='env_name', type=str,
                     help='Name of an env in the active anaconda installation')
@@ -32,33 +37,12 @@ if not os.path.isdir(prefix):
 pkg_list = linked(prefix)
 pkg_dict = {pkg.name : (pkg.version, pkg.build) for pkg in pkg_list}
 
-# Determine installed anaconda package from which to exclude dependencies:
-if 'anaconda' in pkg_dict:
-    version, build = pkg_dict['anaconda']
-    anaconda_query = 'anaconda=={0}={1}'.format(version, build)
-elif 'gemini-anaconda' in pkg_dict:
-    version, build = pkg_dict['gemini-anaconda']
-    anaconda_query = 'gemini-anaconda=={0}={1}'.format(version, build)
-else:
-    raise ValueError('no anaconda pkg installed in {0}'.format(args.env_name))
+selector = f'{context.platform}'
 
-# Do the "conda info anaconda" look-up:
-spec = MatchSpec(anaconda_query)
-results = SubdirData.query_all(spec, context.channels, context.subdirs)
-
-# Organize anaconda deps by name:
-if len(results) == 1:
-    anaconda_deps = {}
-    for dep in results[0].depends:
-        parts = dep.split()
-        anaconda_deps[parts[0]] = parts[1:]
-else:  # this should never happen...
-    raise ValueError('Got {0} matches for {1}'.format(len(results),
-                                                      anaconda_query))
-
-# List installed packages not in anaconda:
+# List installed non-Gemini packages:
 for pkg in sorted(pkg_dict):
-    if pkg not in anaconda_deps:
+    if not exclude.match(pkg):
         version, build = pkg_dict[pkg]
-        print('    - {0} =={1}'.format(pkg, version))
+        spec = f'{pkg} {version} {build}'
+        print(f'  - {spec:<53} # [{selector}]')
 
