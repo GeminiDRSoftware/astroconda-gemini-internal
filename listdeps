@@ -4,6 +4,14 @@
 # checkout for the appropriate branch, so the script can classify dependencies
 # according to whether they're in the standard library and/or found in the env.
 
+# One scenario in which this script can report modules as "not found" is where
+# tests rely on implicit relative imports that only work when running them from
+# a particular subdirectory of the source tree. Those are quite easy to spot,
+# however, and should be fixed in the tests anyway; just look out for failed
+# submodules of the package being analyzed that are imported implicitly.
+# Another scenario is where import examples appear in doc strings, which are
+# harder to parse out than single-line comments and might be expected to work.
+
 import os
 import re
 import sysconfig
