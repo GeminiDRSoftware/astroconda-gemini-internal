@@ -1,48 +1,38 @@
-build:
-    binary_relocation: True
-    number: '0'
-    script: $PYTHON setup.py install
+{% set version = '3.1.0' %}
+{% set tag = 'v' + version %}
+{% set number = '0' %}
+
 package:
     name: gemaux_python
-    version: "3.1.0.dev"
+    version: {{ version }}
 source:
     git_url: git@gitlab.gemini.edu:DRSoftware/gemaux_python.git
-    git_tag: v3.1.0-dev
+    git_tag: {{ tag }}
+build:
+    binary_relocation: True
+    number: {{ number }}
+    noarch: python
+    script: {{ PYTHON }} -m pip install . --no-deps --ignore-installed --no-cache-dir -vv
 about:
     home: http://www.gemini.edu/sciops/data-and-results/processing-software
     license: BSD
     summary: The "gemaux" Python package, for internal Gemini operations
 requirements:
-    # Most of the dependencies besides python are not actually needed to
-    # "build" gemaux_python, but including them here ensures that they get
-    # built and therefore that the package is installable.
     build:
     - python
-    - astropy >=4
-    - dragons >=3.0.0.dev
-    - flask >=1.1                    # just fire
-    - matplotlib >=1.4.2
-    - numpy >=1.19                   # earlier vers prob. OK but not re-tested
-    - pyds9 >=1.8.1
-    # - pyraf >=2.1.6
-    - python-dateutil >=2.5.3
-    - requests >=2.23                # just archive_access & fire
-    # - rx >=3.1                     # just fire; but not in Anaconda repos!
-    - scipy >=1.3
-    - scikit-image >=0.10.1
-    # Several of these modules are only used in one or two scripts, but all
-    # except pyds9 are already indirect dependencies via dragons anyway.
+    - pip
+    - setuptools
     run:
     - python
-    - astropy >=4
-    - dragons >=3.0.0.dev
-    - flask >=1.1                    # just fire
-    - matplotlib >=1.4.2             # just cleanir.py
+    - astropy >=4.3,!=5.3.0          # for AstroData, as in dragons
+    - dragons >=3.1.0
+    - future >=0.17                  # just redux_utils
+    - imexam >=0.8                   # goipos/gsfpos, replacing pyds9
+    - matplotlib >=3.1               # just cleanir.py, calculate_gmos_qe.py
     - numpy >=1.19                   # earlier vers prob. OK but not re-tested
-    - pyds9 >=1.8.1                  # just gsfpos/goipos
-    # - pyraf >=2.1.6                # just cleanir.py; avoid IRAF dep on Py 3
+  # - pyraf >=2.2.1                  # just cleanir.py; avoid IRAF dep on Py 3
     - python-dateutil >=2.5.3
     - requests >=2.23                # just archive_access & fire
-    # - rx >=3.1                     # just fire; but not in Anaconda repos!
-    - scipy >=1.3
     - scikit-image >=0.10.1          # just create_illum_mask.py
+    - scipy >=1.3
+    - urllib3 >=2.0                  # just scales
