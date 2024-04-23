@@ -102,8 +102,8 @@ for root, dirs, files in os.walk(cwd, topdown=True):
 # separating those not found in the test env, for manual checking:
 
 inst_paths = sysconfig.get_paths()
-stdlibdir = Path(inst_paths['stdlib'])
-sitepkgdir = Path(inst_paths['purelib'])
+stdlibdir = Path(os.path.realpath(inst_paths['stdlib']))
+sitepkgdir = Path(os.path.realpath(inst_paths['purelib']))
 
 found, not_found, std = [], [], []
 
