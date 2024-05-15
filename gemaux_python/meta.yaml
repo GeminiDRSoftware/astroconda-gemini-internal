@@ -1,4 +1,4 @@
-{% set version = '3.1.0' %}
+{% set version = '3.2.1' %}
 {% set tag = 'v' + version %}
 {% set number = '0' %}
 
@@ -19,17 +19,17 @@ about:
     summary: The "gemaux" Python package, for internal Gemini operations
 requirements:
     build:
-    - python
+    - python >=3.10
     - pip
     - setuptools
     run:
-    - python
+    - python >=3.10
     - astropy >=4.3,!=5.3.0          # for AstroData, as in dragons
-    - dragons >=3.1.0
+    - dragons >=3.2.0
     - future >=0.17                  # just redux_utils
-    - imexam >=0.8                   # goipos/gsfpos, replacing pyds9
     - matplotlib >=3.1               # just cleanir.py, calculate_gmos_qe.py
     - numpy >=1.19                   # earlier vers prob. OK but not re-tested
+    - pandas >=2.2
   # - pyraf >=2.2.1                  # just cleanir.py; avoid IRAF dep on Py 3
     - python-dateutil >=2.5.3
     - requests >=2.23                # just archive_access & fire
