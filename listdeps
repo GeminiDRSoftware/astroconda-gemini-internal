@@ -32,10 +32,12 @@ for root, dirs, files in os.walk(cwd, topdown=True):
             dirs.remove(d)
 
     for file in files:
-    
-        if file.lower().endswith('.py'):
-        
-            with open(os.path.join(root, file)) as pyfile:
+
+        filepath = os.path.join(root, file)
+
+        if file.lower().endswith('.py') and os.path.exists(filepath):
+
+            with open(filepath) as pyfile:
 
                 for line in pyfile:
 
