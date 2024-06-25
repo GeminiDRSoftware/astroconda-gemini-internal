@@ -1,0 +1,60 @@
+# This meta-package includes some dependencies used by SOS scripts, based on
+# inspection of the Gemini SciOps/sciops repo in gitlab. Not every module
+# imported by those scripts can be included, because 1) there are still many
+# Python 2 dependencies that need migrating; 2) dependencies on EPICS should be
+# supported by software rather than the SUSD Python stack; 3) some dependencies
+# are no longer maintained/available (stsci, pyds9) and/or conflict with newer
+# versions of other packages (imexam with astropy 6); and 4) there are
+# dependencies on PyPI packages (inotify) for which conda-forge has other, more
+# recently-maintained implementations instead. It's also conceivable that I
+# have missed one or two, as a result of having to sift through implicit
+# relative imports and broken links...
+
+# The idea is to include this package set when constructing new "gemini-base"
+# versions, along with the dependencies of DRAGONS, Gemaux & Gemini IRAF, in
+# order to avoid inadvertently removing packages that are useful in operations,
+# in the course of migrating from anaconda + stsci to the conda-forge stack.
+
+build:
+    number: '0'
+    noarch: generic
+package:
+    name: gemini-sciops-deps
+    version: 6.0  # tracking gemini-base version
+about:
+    summary: Meta-package that includes some dependencies used by SOS scripts
+requirements:
+    is_meta_pkg:
+    - true
+    run:
+    - python
+    - astroplan
+    - astropy
+    - astroquery
+    - beautifulsoup4
+    - bokeh
+    - click
+    - dataset
+    - dragons
+    - ephem
+    - ginga
+    - google-api-core
+    - google-api-python-client
+    - gspread
+    - matplotlib
+    - numpy
+    - oauth2client
+    - pandas
+    - photutils
+    - pillow
+    - psutil
+    - pydm
+  # - pyraf  # include separately, for Gemini IRAF, to avoid OS dependence here
+    - python-dateutil
+    - pyqt=5
+    - pytz
+    - requests
+    - scipy
+    - specutils
+    - urllib3
+    - watchdog
