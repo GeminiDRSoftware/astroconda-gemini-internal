@@ -48,7 +48,6 @@ requirements:
     - photutils
     - pillow
     - psutil
-    - pydm
   # - pyraf  # include separately, for Gemini IRAF, to avoid OS dependence here
     - python-dateutil
     - pyqt=5
