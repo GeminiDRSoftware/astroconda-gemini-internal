@@ -1,69 +1,47 @@
-build:
-    binary_relocation: True
-    number: '0'
-    script: $PYTHON setup.py install
+{% set version = '3.2.0+20240716' %}
+{% set tag = '19dc94aab7b6d546f0f3df30ba4063ff9b5afd29' %}
+{% set number = '0' %}
+
 package:
     name: dragons
-    version: "3.1.0.dev"
+    version: {{ version }}
 source:
-    git_url: git@github.com:GeminiDRSoftware/DRAGONS.git
-    git_tag: v3.1.0-dev
+    git_url: https://github.com/GeminiDRSoftware/DRAGONS.git
+    git_tag: {{ tag }}
+build:
+    number: {{ number }}
+    binary_relocation: True
+    script: $PYTHON -m pip install . --no-deps --ignore-installed --no-cache-dir -vv
 about:
     home: http://www.gemini.edu/sciops/data-and-results/processing-software
     license: BSD
+    license_file:
+      - LICENSE
+      - extern_licenses/
     summary: The main DRAGONS package for processing Gemini data
 requirements:
-    # Most of the dependencies besides python are not actually needed to
-    # "build" dragons, but including them here ensures that they get built
-    # and therefore that the package is installable.
     build:
     - python
+    - pip
     - setuptools
-    - asdf >=2.7,!=2.10.0
-    - astropy >=4.3
-    - astroquery >=0.4
-    - astroscrappy >=1.1
-    - bokeh >=2.3
-    - bottleneck >=1.2
     - cython >=0.29
     - docutils >=0.15
-    - fitsverify >=4.17
-    - future >=0.17
-    - gwcs >=0.15
-    - holoviews >=1.14
-    - imexam >=0.8
-    - jinja2 >=3.0
-    - jsonschema >=3.0
-    - matplotlib >=3.1
-    - numpy >=1.17
-    - psutil >=5.6
-    - pyerfa >=1.7
-  # - pytest >=5.2
-    - python-dateutil >=2.5.3
-    - requests >=2.22
-    - scipy >=1.3
-    - sextractor >=2.8.6
-    - specutils >=1.1,<1.9  # [py<38]
-    - specutils >=1.1       # [py>=38]
     - sphinx >=1.2.2
     - sphinx_rtd_theme >=0.3.0
-    - sqlalchemy >=1.3,<2.0.0a0
-    - tornado >=5.1
     run:
     - python
     - asdf >=2.7,!=2.10.0
-    - astropy >=4.3
+    - astropy >=4.3,!=5.3.0     # v5.3 nddata broke AstroData (fixed in 5.3.1)
     - astroquery >=0.4
     - astroscrappy >=1.1
-    - bokeh >=2.3
+    - bokeh >=3.0
     - bottleneck >=1.2          # opt but needed for astropy.stats performance
     - fitsverify >=4.17
     - future >=0.17
-    - gemini_calmgr >=1.1
-    - gemini_obs_db >=1.0
+    - gemini_calmgr >=1.1.24
+    - gemini_obs_db >=1.0.29
     - gwcs >=0.15
     - holoviews >=1.14
-    - imexam >=0.8              # optional for SQ (used by gemaux & debug plots)
     - jinja2 >=3.0
     - jsonschema >=3.0
     - matplotlib >=3.1
@@ -73,10 +51,10 @@ requirements:
   # - pytest >=5.2              # also need pytest_dragons etc. for self test
     - python-dateutil >=2.5.3
     - requests >=2.22
+    - scikit-image >=0.21
     - scipy >=1.3
     - sextractor >=2.8.6
-    - specutils >=1.1,<1.9  # [py<38]
-    - specutils >=1.1       # [py>=38]
+    - specutils >=1.1
     - sqlalchemy >=1.3,<2.0.0a0  # new v2 API breaks calmgr
     - tornado >=5.1
     run_constrained:
