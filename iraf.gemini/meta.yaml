@@ -23,7 +23,8 @@ package:
     version: {{ version }}
 source:
     fn: gemini_iraf-{{ version }}.tar.gz
-    url: http://astroconda-source:4440/gemini_iraf-{{ version }}.tar.gz
+    # url: http://astroconda-source:4440/gemini_iraf-{{ version }}.tar.gz
+    url: file:///rtfperm/ac_sources/gemini_iraf-{{ version }}.tar.gz
 requirements:
     build:
     - astroconda-iraf-helpers
