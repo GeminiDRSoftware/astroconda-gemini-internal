@@ -4,12 +4,13 @@
 
 basepath="/astro/iraf"
 
-# Allow ACVER to be either a version string (eg. 5.2.0) or a space-separated
-# Python version plus Anaconda version string (eg. "3 5.2.0"):
+# Allow ACVER to be either a directory name (eg. "miniforge3_23.1.0") or a
+# space-separated Python version plus Anaconda version string (eg. "3 5.2.0",
+# for backwards-compatibility with previous versions of this script):
 if [ $(echo "$ACVER" | wc -w) -gt 1 ]; then
     acdir="anaconda$(echo ${ACVER} | tr ' ' '_')"
 else
-    acdir="anaconda2_${ACVER}"  # still assume Python 2 by default for now
+    acdir="${ACVER}"
 fi
 
 # Default to "internal" env version unless otherwise specified. This value can
