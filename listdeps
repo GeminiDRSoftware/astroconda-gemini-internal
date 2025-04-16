@@ -45,14 +45,14 @@ for root, dirs, files in os.walk(cwd, topdown=True):
                     # less trivial to parse with a regex, except for lines
                     # beginning with ">>>", which are easy-to-filter examples
                     # in the docs:
-                    if not (re.match('^\s*[#]', line) or
-                            re.match('^\s*>>>', line)):
+                    if not (re.match(r'^\s*[#]', line) or
+                            re.match(r'^\s*>>>', line)):
 
                         # The first line of an import statement almost always
                         # contains the word "import" and package name(s) (one
                         # *could* write "from X" on one line and "import Y" on
                         # the next, but that's not a style that really exists):
-                        mimp = re.match('(\s*from\s+[\w.]+\s)?\s*import\s+',
+                        mimp = re.match(r'(\s*from\s+[\w.]+\s)?\s*import\s+',
                                         line)
 
                         if mimp:
@@ -65,8 +65,8 @@ for root, dirs, files in os.walk(cwd, topdown=True):
 
                             # Extract a substring encompassing package name(s):
                             # print(line, end='')
-                            mimp = re.search('(^|\s+)import\s+', line)
-                            mfrom = re.search('^\s*from\s+', line)
+                            mimp = re.search(r'(^|\s+)import\s+', line)
+                            mfrom = re.search(r'^\s*from\s+', line)
                             if mfrom:
                                 istart = mfrom.end()
                                 iend = mimp.start()
@@ -82,7 +82,7 @@ for root, dirs, files in os.walk(cwd, topdown=True):
                                 pkgstr = pkgstr.strip()
 
                                 # Remove any "as x" component:
-                                mas = re.search('\sas\s', pkgstr)
+                                mas = re.search(r'\sas\s', pkgstr)
                                 if mas:
                                     pkgstr = pkgstr[:mas.start()].strip()
 
