@@ -28,7 +28,8 @@ for root, dirs, files in os.walk(cwd, topdown=True):
 
     # Ignore old copies in build/ & "old_xxx" subdirectories that aren't used:
     for d in list(dirs):
-        if (root == cwd and d == 'build') or d.lower().startswith('old_'):
+        if ((root == cwd and d == 'build') or d == '.tox' or
+              d.lower().startswith('old_')):
             dirs.remove(d)
 
     for file in files:
