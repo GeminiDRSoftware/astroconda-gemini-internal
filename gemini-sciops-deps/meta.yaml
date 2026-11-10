@@ -15,12 +15,17 @@
 # order to avoid inadvertently removing packages that are useful in operations,
 # in the course of migrating from anaconda + stsci to the conda-forge stack.
 
+# As of 2026, we're including the Qt6 stack, which sciops hasn't migrated to
+# yet, in order to keep up to date and provide a target for testing (also for
+# PyGacq). The community (eg. Matplotlib) seems to be gravitating towards using
+# PySide6/QtPy rather than PyQt, so that's what's included for now.
+
 build:
     number: '0'
     noarch: generic
 package:
     name: gemini-sciops-deps
-    version: 6.0  # tracking gemini-base version
+    version: 7.0  # tracking gemini-base version
 about:
     summary: Meta-package that includes some dependencies used by SOS scripts
 requirements:
@@ -41,19 +46,28 @@ requirements:
     - google-api-core
     - google-api-python-client
     - gspread
+    - inotify
     - matplotlib
     - numpy
     - oauth2client
+    - packaging
     - pandas
     - photutils
     - pillow
     - psutil
   # - pyraf  # include separately, for Gemini IRAF, to avoid OS dependence here
     - python-dateutil
-    - pyqt=5
+    - pyside6
+    - pytesseract
     - pytz
+    - pyvo
+    - qtpy
     - requests
     - scipy
     - specutils
     - urllib3
     - watchdog
+    run_constrained:
+    - pyqt >=6
+    - pyside >=6
+    - pyside2 <0a0
