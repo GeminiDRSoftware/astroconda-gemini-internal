@@ -67,6 +67,7 @@ requirements:
     - specutils
     - urllib3
     - watchdog
+    - wcstools
     run_constrained:
     - pyqt >=6
     - pyside >=6
