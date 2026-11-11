@@ -37,7 +37,7 @@ if not os.path.isdir(prefix):
 pkg_list = linked(prefix)
 pkg_dict = {pkg.name : (pkg.version, pkg.build) for pkg in pkg_list}
 
-selector = f'{context.platform}'
+selector = f'{context.platform} and {context.arch_name}'
 
 # List installed non-Gemini packages:
 for pkg in sorted(pkg_dict):
