@@ -14,7 +14,9 @@ from conda.core.prefix_data import PrefixData
 from conda.exports import linked
 
 # Don't list packages beginning with the following names:
-exclude = re.compile('astrodata|dragons|gemaux|gemini|iraf.gemini$|pygacq')
+exclude = re.compile(
+    'astrodata|dragons|gemaux|gemini|iraf-all|iraf.gemini$|pygacq|pyraf-all'
+)
 
 parser = argparse.ArgumentParser(
     description='List the non-Gemini packages in an env for meta.yaml'
