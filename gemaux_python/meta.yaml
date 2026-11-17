@@ -1,6 +1,5 @@
-{% set version = '4.0.0b1' %}
-# {% set tag = 'v' + version %}
-{% set tag = '9041194c' %}
+{% set version = '4.0.0' %}
+{% set tag = 'v' + version %}
 {% set number = '0' %}
 
 package:
@@ -31,7 +30,6 @@ requirements:
     - matplotlib >=3.7               # just cleanir.py, calculate_gmos_qe.py
     - numpy >=1.24
     - pandas >=2.2
-  # - pyraf >=2.2.1                  # just cleanir.py; avoid IRAF dep on Py 3
     - python-dateutil >=2.8
     - requests >=2.23                # just archive_access & fire
     - scikit-image >=0.21            # just create_illum_mask.py
